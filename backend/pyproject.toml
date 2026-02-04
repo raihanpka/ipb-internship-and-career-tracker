@@ -1,0 +1,48 @@
+[project]
+name = "app-backend"
+version = "1.0.0"
+description = ""
+authors = [
+    {name = "Raihan Putra Kirana",email = "me@raihanpk.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+fastapi = "^0.128.0"
+uvicorn = {extras = ["standard"], version = "^0.40.0"}
+SQLAlchemy = "^2.0.46"
+psycopg2-binary = "^2.9.4"
+Jinja2 = "^3.1.2"
+python-multipart = "^0.0.22"
+requests = "^2.28.1"
+click = "^8.1.3"
+Faker = "^40.1.2"
+python-dotenv = "^1.2.1"
+pydantic = "^2.0.0"
+pydantic-settings = "^2.0.0"
+pytest = "^8.0.0"
+pytest-cov = "^7.0.0"
+pytest-asyncio = "^1.3.0"
+pytest-mock = "^3.10.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+email-validator = "^2.3.0"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.3.0"
+isort = "^7.0.0"
+black = "^26.1.0"
+bandit = "^1.7.4"
+safety = "^2.3.1"
+
+[tool.poetry]
+packages = [{include = "app_backend", from = "src"}]
+
+[tool.poetry.scripts]
+load_fixtures = "app_backend.scripts.load_fixtures:load_fixtures"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
