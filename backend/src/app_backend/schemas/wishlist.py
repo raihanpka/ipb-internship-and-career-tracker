@@ -27,6 +27,16 @@ class VacancySummary(BaseModel):
     open_date: datetime
     close_date: datetime
 
+class WishlistSummary(VacancySummary):
+    """Backward-compatible alias for wishlist vacancy summary payloads."""
+    id: UUID
+    title: str
+    location: Optional[str] = None
+    type: str
+    payment_type: Optional[str] = None
+    open_date: datetime
+    close_date: datetime
+
 
 # ─────────────────────────────────────────────
 # Create Schemas
@@ -85,5 +95,5 @@ class WishlistDetailResponse(BaseModel):
 class WishlistListResponse(BaseModel):
     """Response untuk list wishlist student"""
 
-    items: List[WishlistDetailResponse]
+    items: list[WishlistDetailResponse]
     total: int

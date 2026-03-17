@@ -9,6 +9,7 @@ from app_backend.features.wishlist.add_wishlist import (
 )
 from app_backend.features.wishlist.delete_wishlist import (
     DeleteWishlistCommand,
+    DeleteWishlistResult,
     delete_wishlist_command_handler,
 )
 from app_backend.features.wishlist.get_wishlist import (
@@ -37,6 +38,7 @@ __all__ = [
     # Results
     "AddWishlistResult",
     "UpdateWishlistResult",
+    "DeleteWishlistResult",
     "GetWishlistResult",
     "ListWishlistResult",
     # Handlers

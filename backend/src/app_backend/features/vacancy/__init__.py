@@ -13,6 +13,7 @@ from app_backend.features.vacancy.create_vacancy import (
 )
 from app_backend.features.vacancy.delete_vacancy import (
     DeleteVacancyCommand,
+    DeleteVacancyResult,
     delete_vacancy_command_handler,
 )
 from app_backend.features.vacancy.get_vacancy import (
@@ -47,6 +48,7 @@ __all__ = [
     # Results
     "CreateVacancyResult",
     "UpdateVacancyResult",
+    "DeleteVacancyResult",
     "GetVacancyResult",
     "ListVacanciesResult",
     "SearchVacanciesResult",
