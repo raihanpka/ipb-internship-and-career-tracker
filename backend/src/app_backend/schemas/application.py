@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -31,19 +31,6 @@ class ApplicationStatusUpdate(BaseModel):
         return self
 
 
-class ApplicationLogResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    application_id: uuid.UUID
-    new_status: str
-    previous_status: Optional[str] = None
-    changed_by: Optional[uuid.UUID] = None
-    proof_url: Optional[str] = None
-    reason: Optional[str] = None
-    created_at: Optional[datetime] = None
-
-
 class ApplicationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -54,30 +41,28 @@ class ApplicationResponse(BaseModel):
     status: str
 
 
-class ApplicationStatusUpdateResponse(BaseModel):
-    application: ApplicationResponse
-    log: ApplicationLogResponse
-class ApplicationUpdateStatus(BaseModel):
-    status: str
-    reason: str | None = None
-    proof_url: str | None = None
-
 class ApplicationLogResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
     application_id: uuid.UUID
     new_status: str
-    previous_status: str | None = None
-    proof_url: str | None = None
-    reason: str | None = None
-    changed_by: uuid.UUID | None = None
+    previous_status: Optional[str] = None
+    changed_by: Optional[uuid.UUID] = None
+    proof_url: Optional[str] = None
+    reason: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
 
-import datetime
+
+class ApplicationStatusUpdateResponse(BaseModel):
+    application: ApplicationResponse
+    log: ApplicationLogResponse
+
 
 class ApplicationVerifyPayload(BaseModel):
     start_date: datetime.date
     end_date: datetime.date
+
 
 class ApplicationRejectPayload(BaseModel):
     reason: str

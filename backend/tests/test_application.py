@@ -284,20 +284,12 @@ def test_update_status_unauthenticated(client_no_auth):
 
 def test_update_application_status_success(client_as_student):
     with patch("app_backend.routers.api.application.update_application_status_command_handler") as mock_handler:
-        from app_backend.schemas.application import ApplicationResponse
-        mock_handler.return_value = MagicMock(
-            got_error=lambda: False,
-            application=ApplicationResponse(
-                id=APPLICATION_ID,
-                vacancy_id=VACANCY_ID,
-                student_id=STUDENT_USER_ID,
-                cv_snapshot_url="https://example.com/cv.pdf",
-                status="INTERVIEW",
-            )
+        mock_handler.return_value = _make_status_update_result("INTERVIEW", "APPLIED")
+        resp = client_as_student.patch(
+            f"/api/v1/applications/{APPLICATION_ID}/status", json={"new_status": "INTERVIEW"}
         )
-        resp = client_as_student.patch(f"/api/v1/applications/{APPLICATION_ID}/status", json={"status": "INTERVIEW"})
     assert resp.status_code == 200
-    assert resp.json()["status"] == "INTERVIEW"
+    assert resp.json()["application"]["status"] == "INTERVIEW"
 
 def test_upload_application_proof_success(client_as_student):
     with patch("app_backend.routers.api.application.upload_application_proof_command_handler") as mock_handler:

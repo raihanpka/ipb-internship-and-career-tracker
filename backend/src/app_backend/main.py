@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 import app_backend.models  # noqa: F401 – registrasi semua tabel ke metadata
 from app_backend.models.base import Base
-from app_backend.routers.api import admin, application, auth, profile, vacancy, placement
+from app_backend.routers.api import admin, application, auth, document_request, profile, vacancy, placement
 from app_backend.shared.database import engine
 
 
@@ -55,6 +55,7 @@ app.include_router(admin.router)
 app.include_router(vacancy.router)
 app.include_router(application.router)
 app.include_router(placement.router)
+app.include_router(document_request.router)
 
 
 @app.get("/", tags=["root"])

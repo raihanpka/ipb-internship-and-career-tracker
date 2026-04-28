@@ -42,6 +42,7 @@ class DocumentRequests(Base):
     document_type: Mapped[str] = mapped_column(String(50), nullable=False)
     student_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     reference_vacancy_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
+    purpose: Mapped[Optional[str]] = mapped_column(Text)
     generated_url: Mapped[Optional[str]] = mapped_column(Text)
     status: Mapped[Optional[str]] = mapped_column(
         String(20), server_default=text("'PENDING'::character varying")

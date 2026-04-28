@@ -1,7 +1,7 @@
 from .initialize_apply import (InitializeApplyCommand, InitializeApplyResult,
                                initialize_apply_command_handler)
-from .update_application_status import (UpdateApplicationStatusCommand, UpdateApplicationStatusResult,
-                                        update_application_status_command_handler)
+from .update_status import (UpdateApplicationStatusCommand, UpdateApplicationStatusResult,
+                            update_application_status_command_handler)
 from .upload_application_proof import (UploadApplicationProofCommand, UploadApplicationProofResult,
                                        upload_application_proof_command_handler)
 from .get_application_history import (GetApplicationHistoryCommand, GetApplicationHistoryResult,

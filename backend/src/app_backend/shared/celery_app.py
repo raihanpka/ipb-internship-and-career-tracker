@@ -16,6 +16,7 @@ celery_app = Celery(
         "app_backend.shared.tasks.vacancy_tasks",
         "app_backend.shared.tasks.notification_tasks",
         "app_backend.shared.tasks.report_tasks",
+        "app_backend.shared.tasks.document_tasks",
     ],
 )
 
@@ -45,6 +46,7 @@ celery_app.conf.update(
         "app_backend.shared.tasks.vacancy_tasks.*": {"queue": "vacancy"},
         "app_backend.shared.tasks.notification_tasks.*": {"queue": "notification"},
         "app_backend.shared.tasks.report_tasks.*": {"queue": "report"},
+        "app_backend.shared.tasks.document_tasks.*": {"queue": "document"},
     },
 )
 

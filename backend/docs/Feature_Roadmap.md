@@ -381,16 +381,16 @@ Setiap worker didaftarkan di `app/workers/` sebagai Celery task dengan signature
 
 ### Surat Pengantar Generator
 
-- [ ] Endpoint `POST /document-requests`: Mahasiswa mengajukan permohonan surat pengantar untuk keperluan pelamaran
-- [ ] Field: `vacancy_id` (nullable), `purpose` (TEXT), `requested_at` (auto)
-- [ ] Schema Ref: Insert `public.document_requests`
-- [ ] Celery task `generate_cover_letter(request_id)`:
-  - [ ] Fetch data mahasiswa dan tujuan permohonan
-  - [ ] Render ke PDF surat resmi dengan kop IPB menggunakan ReportLab
-  - [ ] Upload PDF ke Object Storage
-  - [ ] Update `public.document_requests.generated_url`
-- [ ] Endpoint `GET /document-requests/:id`: Return status permohonan dan `generated_url` jika sudah siap
-- [ ] Endpoint `GET /document-requests`: Riwayat semua permohonan surat mahasiswa yang sedang login
+- [x] Endpoint `POST /document-requests`: Mahasiswa mengajukan permohonan surat pengantar untuk keperluan pelamaran
+- [x] Field: `vacancy_id` (nullable), `purpose` (TEXT), `requested_at` (auto)
+- [x] Schema Ref: Insert `public.document_requests`
+- [x] Celery task `generate_cover_letter(request_id)`:
+  - [x] Fetch data mahasiswa dan tujuan permohonan
+  - [x] Render ke PDF surat resmi dengan kop IPB menggunakan ReportLab
+  - [x] Upload PDF ke Object Storage
+  - [x] Update `public.document_requests.generated_url`
+- [x] Endpoint `GET /document-requests/:id`: Return status permohonan dan `generated_url` jika sudah siap
+- [x] Endpoint `GET /document-requests`: Riwayat semua permohonan surat mahasiswa yang sedang login
 
 ### Test Gate Phase 6
 
