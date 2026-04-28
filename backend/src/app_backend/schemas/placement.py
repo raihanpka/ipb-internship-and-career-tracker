@@ -37,3 +37,14 @@ class ActivityLogResponse(BaseModel):
     description_raw: str
     description_ai_enhanced: Optional[str] = None
     attachment_url: Optional[str] = None
+
+
+class ReportGenerateResponse(BaseModel):
+    task_id: Optional[str] = None
+    message: str
+
+
+class ReportStatusResponse(BaseModel):
+    status: str  # "generated" | "not_generated"
+    report_url: Optional[str] = None
+    last_generated_at: Optional[str] = None

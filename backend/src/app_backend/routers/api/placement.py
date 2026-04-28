@@ -10,12 +10,16 @@ from app_backend.features.placement import (
     ListActivityLogsCommand, list_activity_logs_command_handler,
     UpdateActivityLogCommand, update_activity_log_command_handler,
     DeleteActivityLogCommand, delete_activity_log_command_handler,
+    GenerateReportCommand, generate_report_command_handler,
+    GetReportCommand, get_report_command_handler,
 )
 from app_backend.schemas.placement import (
     PlacementResponse,
     ActivityLogCreate,
     ActivityLogUpdate,
     ActivityLogResponse,
+    ReportGenerateResponse,
+    ReportStatusResponse,
 )
 from app_backend.shared.database import get_session
 from app_backend.shared.dependencies import require_student
@@ -137,3 +141,52 @@ def upload_activity_log_attachment(
     if result.got_error():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result.error_message)
     return {"message": result.message, "attachment_url": result.attachment_url}
+
+
+@router.post(
+    "/{placement_id}/report/generate",
+    response_model=ReportGenerateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Trigger pembuatan laporan akhir magang (async)",
+)
+def generate_report(
+    placement_id: uuid.UUID,
+    current_user=Depends(require_student),
+    session: Session = Depends(get_session),
+):
+    result = generate_report_command_handler(
+        command=GenerateReportCommand(
+            placement_id=placement_id,
+            student_id=current_user.id,
+        ),
+        session=session,
+    )
+    if result.got_error():
+        raise HTTPException(status_code=result.error_code, detail=result.error_message)
+    return ReportGenerateResponse(task_id=result.task_id, message=result.message)
+
+
+@router.get(
+    "/{placement_id}/report",
+    response_model=ReportStatusResponse,
+    summary="Cek status atau ambil URL laporan akhir magang",
+)
+def get_report(
+    placement_id: uuid.UUID,
+    current_user=Depends(require_student),
+    session: Session = Depends(get_session),
+):
+    result = get_report_command_handler(
+        command=GetReportCommand(
+            placement_id=placement_id,
+            student_id=current_user.id,
+        ),
+        session=session,
+    )
+    if result.got_error():
+        raise HTTPException(status_code=result.error_code, detail=result.error_message)
+    return ReportStatusResponse(
+        status=result.status,
+        report_url=result.report_url,
+        last_generated_at=result.last_generated_at,
+    )

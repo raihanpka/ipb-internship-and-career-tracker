@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
+import sqlalchemy as sa
 
 import app_backend.models  # noqa: F401 – registrasi semua tabel ke metadata
 from app_backend.models.base import Base
@@ -18,9 +19,12 @@ from app_backend.shared.database import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    import os
     # Buat semua tabel saat server start; dilewati ketika TESTING=1
     if not os.environ.get("TESTING"):
+        with engine.connect() as conn:
+            conn.execute(sa.text("CREATE EXTENSION IF NOT EXISTS pgcrypto"))
+            conn.execute(sa.text("CREATE SCHEMA IF NOT EXISTS auth"))
+            conn.commit()
         Base.metadata.create_all(bind=engine)
     yield
 

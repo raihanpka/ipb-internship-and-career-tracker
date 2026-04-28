@@ -5,6 +5,8 @@ from .list_activity_logs import ListActivityLogsCommand, ListActivityLogsResult,
 from .update_activity_log import UpdateActivityLogCommand, UpdateActivityLogResult, update_activity_log_command_handler
 from .delete_activity_log import DeleteActivityLogCommand, DeleteActivityLogResult, delete_activity_log_command_handler
 from .list_admin_placements import ListAdminPlacementsCommand, ListAdminPlacementsResult, list_admin_placements_command_handler
+from .generate_report import GenerateReportCommand, GenerateReportResult, generate_report_command_handler
+from .get_report import GetReportCommand, GetReportResult, get_report_command_handler
 
 __all__ = [
     "GetMyPlacementsCommand",
@@ -28,4 +30,10 @@ __all__ = [
     "ListAdminPlacementsCommand",
     "ListAdminPlacementsResult",
     "list_admin_placements_command_handler",
+    "GenerateReportCommand",
+    "GenerateReportResult",
+    "generate_report_command_handler",
+    "GetReportCommand",
+    "GetReportResult",
+    "get_report_command_handler",
 ]

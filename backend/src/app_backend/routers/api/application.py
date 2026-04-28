@@ -126,6 +126,8 @@ def update_application_status(
             proof_url=payload.proof_url,
             reason=payload.reason,
             changed_by=current_user.id,
+            )
+        )
     return {"message": result.message, "proof_url": result.proof_url}
 
 
