@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPB Internship and Career Tracker - Test Web</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .token-box { font-family: monospace; word-break: break-all; background: #eee; padding: 5px; }
+        button { margin-top: 5px; }
+        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>API Testing Frontend</h1>
+    
+    <div class="section" id="login-section">
+        <h2>1. Authentication (Login)</h2>
+        <form id="login-form">
+            <label>Email: <input type="email" id="login-email" value="student@ipb.ac.id" required></label><br><br>
+            <label>Password: <input type="password" id="login-password" value="Password123" required></label><br><br>
+            <button type="submit">Login</button>
+        </form>
+        <p>Status: <span id="login-status">Not logged in</span></p>
+        <p>Access Token: <div class="token-box" id="token-display">None</div></p>
+    </div>
+
+    <div class="section" id="profile-section">
+        <h2>2. Profile Management</h2>
+        <button id="btn-get-profile">Get My Profile</button>
+        <pre id="profile-result">Result will appear here</pre>
+        
+        <hr>
+        <h3>Upload CV</h3>
+        <form id="upload-form">
+            <label>Select PDF: <input type="file" id="cv-file" accept="application/pdf" required></label><br>
+            <button type="submit">Upload CV</button>
+        </form>
+        <p>Upload Status: <span id="upload-status"></span></p>
+    </div>
+
+    <div class="section" id="vacancy-section">
+        <h2>3. Job Board and Discovery</h2>
+        <button id="btn-get-vacancies">List Active Vacancies</button>
+        <pre id="vacancies-result">Result will appear here</pre>
+        
+        <hr>
+        <h3>Check Job Match</h3>
+        <form id="match-form">
+            <label>Vacancy ID: <input type="text" id="match-vacancy-id" placeholder="UUID" required></label><br>
+            <button type="submit">Get Match Percentage</button>
+        </form>
+        <pre id="match-result">Result will appear here</pre>
+    </div>
+
+    <div class="section" id="ats-section">
+        <h2>4. ATS (Applications)</h2>
+        <form id="apply-form">
+            <label>Vacancy ID: <input type="text" id="apply-vacancy-id" placeholder="UUID" required></label><br>
+            <button type="submit">Apply for Vacancy</button>
+        </form>
+        <pre id="apply-result">Result will appear here</pre>
+    </div>
+
+    <div class="section" id="wishlist-section">
+        <h2>5. Wishlist</h2>
+        <button id="btn-get-wishlist">Get My Wishlist</button>
+        <pre id="wishlist-result">Result will appear here</pre>
+    </div>
+
+    <div class="section" id="application-status-section">
+        <h2>6. Application Tracking (Phase 4)</h2>
+        <form id="status-update-form">
+            <label>Application ID: <input type="text" id="status-app-id" placeholder="UUID" required></label><br>
+            <label>New Status: 
+                <select id="new-status">
+                    <option value="APPLIED">APPLIED</option>
+                    <option value="SCREENING">SCREENING</option>
+                    <option value="INTERVIEW">INTERVIEW</option>
+                    <option value="OFFERED">OFFERED</option>
+                    <option value="ACCEPTED">ACCEPTED</option>
+                    <option value="REJECTED">REJECTED</option>
+                </select>
+            </label><br>
+            <button type="submit">Update Status</button>
+        </form>
+        <hr>
+        <h3>Upload Proof (LoA)</h3>
+        <form id="proof-upload-form">
+            <label>Application ID: <input type="text" id="proof-app-id" placeholder="UUID" required></label><br>
+            <label>File: <input type="file" id="proof-file" accept="image/*,application/pdf" required></label><br>
+            <button type="submit">Upload Proof</button>
+        </form>
+        <hr>
+        <button id="btn-get-history">Get App History</button>
+        <input type="text" id="history-app-id" placeholder="App UUID">
+        <pre id="app-status-result">Result will appear here</pre>
+    </div>
+
+    <div class="section" id="admin-section">
+        <h2>7. Admin Actions (Phase 4)</h2>
+        <button id="btn-list-pending">List Pending Verifications</button>
+        <pre id="admin-pending-result">Result will appear here</pre>
+        <hr>
+        <form id="verify-form">
+            <label>App ID: <input type="text" id="verify-app-id" placeholder="UUID" required></label><br>
+            <label>Start Date: <input type="date" id="start-date" required></label><br>
+            <label>End Date: <input type="date" id="end-date" required></label><br>
+            <button type="submit">Verify & Create Placement</button>
+        </form>
+        <hr>
+        <form id="reject-proof-form">
+            <label>App ID: <input type="text" id="reject-app-id" placeholder="UUID" required></label><br>
+            <label>Reason: <input type="text" id="reject-reason" required></label><br>
+            <button type="submit">Reject Proof</button>
+        </form>
+    </div>
+
+    <div class="section" id="placement-section">
+        <h2>8. Placements & Logs (Phase 5)</h2>
+        <button id="btn-get-placements">Get My Placements</button>
+        <pre id="placements-result">Result will appear here</pre>
+        <hr>
+        <h3>Submit Daily Log</h3>
+        <form id="log-form">
+            <label>Placement ID: <input type="text" id="log-placement-id" placeholder="UUID" required></label><br>
+            <label>Date: <input type="date" id="log-date" required></label><br>
+            <label>Start: <input type="time" id="log-start" required></label>
+            <label>End: <input type="time" id="log-end" required></label><br>
+            <label>Description: <textarea id="log-desc" required></textarea></label><br>
+            <button type="submit">Submit Log</button>
+        </form>
+        <hr>
+        <h3>Log Attachment</h3>
+        <form id="log-attach-form">
+            <label>Placement ID: <input type="text" id="attach-placement-id" placeholder="UUID" required></label><br>
+            <label>Log ID: <input type="text" id="attach-log-id" placeholder="UUID" required></label><br>
+            <label>File: <input type="file" id="attach-file" required></label><br>
+            <button type="submit">Upload Attachment</button>
+        </form>
+        <pre id="log-result">Result will appear here</pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/v1';
+        let accessToken = '';
+
+        function getHeaders(isJson = true) {
+            const headers = { 'Authorization': `Bearer ${accessToken}` };
+            if (isJson) headers['Content-Type'] = 'application/json';
+            return headers;
+        }
+
+        // 1. Auth
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const statusEl = document.getElementById('login-status');
+
+            statusEl.textContent = 'Logging in...';
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    accessToken = data.access_token;
+                    statusEl.textContent = 'Login successful!';
+                    document.getElementById('token-display').textContent = accessToken;
+                } else {
+                    statusEl.textContent = 'Login failed: ' + (data.detail || JSON.stringify(data));
+                }
+            } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 2. Profile
+        document.getElementById('btn-get-profile').addEventListener('click', async () => {
+            const resEl = document.getElementById('profile-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/profile/me`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('cv-file');
+            if (fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+            const statusEl = document.getElementById('upload-status');
+            const formData = new FormData();
+            formData.append('file', file);
+
+            statusEl.textContent = 'Uploading...';
+            try {
+                const res = await fetch(`${API_BASE}/profile/student/cv`, {
+                    method: 'POST',
+                    headers: getHeaders(false),
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    statusEl.textContent = 'Upload successful! CV URL: ' + data.cv_url;
+                } else {
+                    statusEl.textContent = 'Upload failed: ' + (data.detail || JSON.stringify(data));
+                }
+            } catch (err) {
+                statusEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 3. Vacancies
+        document.getElementById('btn-get-vacancies').addEventListener('click', async () => {
+            const resEl = document.getElementById('vacancies-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/vacancies`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('match-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vid = document.getElementById('match-vacancy-id').value;
+            const resEl = document.getElementById('match-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/job-matching/${vid}`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 4. ATS
+        document.getElementById('apply-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const vid = document.getElementById('apply-vacancy-id').value;
+            const resEl = document.getElementById('apply-result');
+            resEl.textContent = 'Submitting application...';
+            try {
+                const res = await fetch(`${API_BASE}/applications`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ vacancy_id: vid })
+                });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 5. Wishlist
+        document.getElementById('btn-get-wishlist').addEventListener('click', async () => {
+            const resEl = document.getElementById('wishlist-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/wishlist`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 6. Application Tracking
+        document.getElementById('status-update-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const aid = document.getElementById('status-app-id').value;
+            const status = document.getElementById('new-status').value;
+            const resEl = document.getElementById('app-status-result');
+            resEl.textContent = 'Updating...';
+            try {
+                const res = await fetch(`${API_BASE}/applications/${aid}/status`, {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ status })
+                });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('proof-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const aid = document.getElementById('proof-app-id').value;
+            const file = document.getElementById('proof-file').files[0];
+            const resEl = document.getElementById('app-status-result');
+            const formData = new FormData();
+            formData.append('file', file);
+            resEl.textContent = 'Uploading proof...';
+            try {
+                const res = await fetch(`${API_BASE}/applications/${aid}/proof`, {
+                    method: 'POST',
+                    headers: getHeaders(false),
+                    body: formData
+                });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('btn-get-history').addEventListener('click', async () => {
+            const aid = document.getElementById('history-app-id').value;
+            const resEl = document.getElementById('app-status-result');
+            if (!aid) return alert('App ID required');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/applications/${aid}/history`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        // 7. Admin
+        document.getElementById('btn-list-pending').addEventListener('click', async () => {
+            const resEl = document.getElementById('admin-pending-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/admin/applications/pending-verification`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('verify-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const aid = document.getElementById('verify-app-id').value;
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            try {
+                const res = await fetch(`${API_BASE}/admin/applications/${aid}/verify`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ start_date: start, end_date: end })
+                });
+                const data = await res.json();
+                alert(res.ok ? 'Verified!' : 'Failed: ' + data.detail);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+
+        // 8. Placements
+        document.getElementById('btn-get-placements').addEventListener('click', async () => {
+            const resEl = document.getElementById('placements-result');
+            resEl.textContent = 'Loading...';
+            try {
+                const res = await fetch(`${API_BASE}/placements/me`, { headers: getHeaders() });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('log-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pid = document.getElementById('log-placement-id').value;
+            const resEl = document.getElementById('log-result');
+            const body = {
+                log_date: document.getElementById('log-date').value,
+                start_time: document.getElementById('log-start').value,
+                end_time: document.getElementById('log-end').value,
+                description_raw: document.getElementById('log-desc').value
+            };
+            resEl.textContent = 'Submitting log...';
+            try {
+                const res = await fetch(`${API_BASE}/placements/${pid}/logs`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+
+        document.getElementById('log-attach-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pid = document.getElementById('attach-placement-id').value;
+            const lid = document.getElementById('attach-log-id').value;
+            const file = document.getElementById('attach-file').files[0];
+            const resEl = document.getElementById('log-result');
+            const formData = new FormData();
+            formData.append('file', file);
+            resEl.textContent = 'Uploading attachment...';
+            try {
+                const res = await fetch(`${API_BASE}/placements/${pid}/logs/${lid}/attachment`, {
+                    method: 'POST',
+                    headers: getHeaders(false),
+                    body: formData
+                });
+                const data = await res.json();
+                resEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resEl.textContent = 'Error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>

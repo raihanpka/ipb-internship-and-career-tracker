@@ -46,8 +46,10 @@ COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app /app
 
 # Fix permissions and reduce attack surface
-RUN chown -R app:app /app /opt/venv \
-    && chmod -R go-rwx /opt/venv
+RUN mkdir -p /app/uploads \
+    && chown -R app:app /app /opt/venv /app/uploads \
+    && chmod -R go-rwx /opt/venv \
+    && chmod 750 /app/uploads
 
 # Switch to non-root user
 USER app

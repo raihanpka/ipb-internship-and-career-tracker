@@ -36,6 +36,14 @@ from app_backend.features.vacancy.update_vacancy import (
     UpdateVacancyResult,
     update_vacancy_command_handler,
 )
+from app_backend.features.vacancy.job_matching import (
+    JobMatchCommand,
+    JobMatchResult,
+    JobMatchListCommand,
+    JobMatchListResult,
+    job_match_command_handler,
+    job_match_list_command_handler,
+)
 
 __all__ = [
     # Commands
@@ -45,6 +53,8 @@ __all__ = [
     "GetVacancyCommand",
     "ListVacanciesCommand",
     "SearchVacanciesCommand",
+    "JobMatchCommand",
+    "JobMatchListCommand",
     # Results
     "CreateVacancyResult",
     "UpdateVacancyResult",
@@ -52,6 +62,8 @@ __all__ = [
     "GetVacancyResult",
     "ListVacanciesResult",
     "SearchVacanciesResult",
+    "JobMatchResult",
+    "JobMatchListResult",
     # Handlers
     "create_vacancy_command_handler",
     "update_vacancy_command_handler",
@@ -59,4 +71,6 @@ __all__ = [
     "get_vacancy_command_handler",
     "list_vacancies_command_handler",
     "search_vacancies_command_handler",
+    "job_match_command_handler",
+    "job_match_list_command_handler",
 ]

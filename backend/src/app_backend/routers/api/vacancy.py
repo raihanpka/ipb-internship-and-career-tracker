@@ -13,14 +13,16 @@ Endpoints:
   GET /wishlist/{id}        – Detail wishlist
   PUT /wishlist/{id}        – Update catatan wishlist
   DELETE /wishlist/{id}     – Hapus wishlist
+  GET /job-matching         – List kecocokan dengan semua lowongan
+  GET /job-matching/{id}    – Detail kecocokan dengan lowongan tertentu
 """
 
 from http import HTTPStatus
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import parse_obj_as
+from pydantic import BaseModel
 
 from app_backend.domain.user import User as DomainUser
 from app_backend.domain.student import Student as DomainStudent
@@ -37,12 +39,16 @@ from app_backend.features.vacancy import (
     SearchVacanciesResult,
     UpdateVacancyCommand,
     UpdateVacancyResult,
+    JobMatchCommand,
+    JobMatchListCommand,
     create_vacancy_command_handler,
     delete_vacancy_command_handler,
     get_vacancy_command_handler,
     list_vacancies_command_handler,
     search_vacancies_command_handler,
     update_vacancy_command_handler,
+    job_match_command_handler,
+    job_match_list_command_handler,
 )
 from app_backend.features.wishlist import (
     AddWishlistCommand,
@@ -70,6 +76,7 @@ from app_backend.schemas.vacancy import (
     VacancyUpdate,
     VacancyType,
     PaymentType,
+    JobMatchResult,
 )
 from app_backend.schemas.wishlist import (
     WishlistCreate,
@@ -422,3 +429,94 @@ async def delete_wishlist(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=result.error_message,
         )
+
+
+# ══════════════════════════════════════════════════════
+# Job Matching (Student)
+# ══════════════════════════════════════════════════════
+
+
+class JobMatchListResponse(BaseModel):
+    """Response untuk list job matching dengan pagination"""
+    items: List[JobMatchResult]
+    total: int
+    page: int
+    per_page: int
+    total_pages: int
+
+
+@router.get(
+    "/job-matching",
+    response_model=JobMatchListResponse,
+    summary="List kecocokan semua lowongan",
+)
+async def list_job_matching(
+    page: int = Query(1, ge=1, description="Halaman"),
+    per_page: int = Query(10, ge=1, le=100, description="Item per halaman"),
+    min_match: float = Query(0.0, ge=0, le=100, description="Minimum persentase kecocokan"),
+    session=Depends(get_session),
+    current_student: DomainStudent = Depends(get_current_active_student),
+) -> JobMatchListResponse:
+    """
+    Hitung kecocokan profil mahasiswa dengan semua lowongan aktif.
+    Diurutkan berdasarkan match_percentage tertinggi.
+
+    Algoritma matching:
+    - Mandatory skills memiliki bobot 2x
+    - Optional skills memiliki bobot 1x
+    - Formula: (matched_mandatory * 2 + matched_optional) / (total_mandatory * 2 + total_optional) * 100
+    """
+    result = job_match_list_command_handler(
+        command=JobMatchListCommand(
+            student_id=current_student.user_id,
+            page=page,
+            per_page=per_page,
+            min_match_percentage=min_match,
+        ),
+        session=session,
+    )
+    if result.got_error():
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=result.error_message,
+        )
+    return JobMatchListResponse(
+        items=result.items,
+        total=result.total,
+        page=result.page,
+        per_page=result.per_page,
+        total_pages=result.total_pages,
+    )
+
+
+@router.get(
+    "/job-matching/{vacancy_id}",
+    response_model=JobMatchResult,
+    summary="Detail kecocokan dengan lowongan tertentu",
+)
+async def get_job_matching(
+    vacancy_id: UUID,
+    session=Depends(get_session),
+    current_student: DomainStudent = Depends(get_current_active_student),
+) -> JobMatchResult:
+    """
+    Hitung kecocokan profil mahasiswa dengan lowongan spesifik.
+
+    Response mencakup:
+    - match_percentage: Persentase kecocokan
+    - matched_skills: Skill yang cocok
+    - missing_mandatory_skills: Skill wajib yang belum dimiliki
+    """
+    result = job_match_command_handler(
+        command=JobMatchCommand(
+            student_id=current_student.user_id,
+            vacancy_id=vacancy_id,
+        ),
+        session=session,
+    )
+    if result.got_error():
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail=result.error_message,
+        )
+    return result.result

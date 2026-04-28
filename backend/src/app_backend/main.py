@@ -7,10 +7,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 import app_backend.models  # noqa: F401 – registrasi semua tabel ke metadata
 from app_backend.models.base import Base
-from app_backend.routers.api import admin, application, auth, profile, vacancy
+from app_backend.routers.api import admin, application, auth, profile, vacancy, placement
 from app_backend.shared.database import engine
 
 
@@ -33,11 +35,14 @@ app = FastAPI(
 # Konfigurasi CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Include routers
 app.include_router(auth.router)
@@ -45,6 +50,7 @@ app.include_router(profile.router)
 app.include_router(admin.router)
 app.include_router(vacancy.router)
 app.include_router(application.router)
+app.include_router(placement.router)
 
 
 @app.get("/", tags=["root"])

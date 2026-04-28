@@ -17,6 +17,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app_backend.conf.settings import settings
 from app_backend.domain.user import User as DomainUser
 from app_backend.features.auth.login_user import (LoginUserCommand,
                                                   login_user_command_handler)
@@ -222,16 +223,19 @@ async def request_password_reset(
     Kirim token reset password ke email terdaftar.
     Selalu mengembalikan respons generik untuk mencegah email enumeration.
 
-    > **DEV**: Field `reset_token` dikembalikan di response untuk keperluan testing.
-    > Di production, hapus field tersebut dan kirim via email saja.
+    > **DEV**: Field `reset_token` hanya dikembalikan di mode development.
+    > Di production, token dikirim via email dan tidak ada di response.
     """
     result = request_reset_password_command_handler(
         command=RequestResetPasswordCommand(payload=request),
         session=session,
     )
     response: dict = {"message": result.message}
-    if result.token:  # DEV ONLY
+
+    # Hanya kembalikan token di development mode
+    if settings.is_development and result.token:
         response["reset_token"] = result.token
+
     return response
 
 

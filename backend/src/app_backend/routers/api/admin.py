@@ -66,6 +66,16 @@ from app_backend.schemas.admin import (AdminProfileResponse,
                                        DepartmentUpdate, SkillCreate,
                                        SkillResponse, SkillUpdate)
 from app_backend.schemas.user import UserResponse
+from app_backend.schemas.application import (ApplicationResponse, ApplicationVerifyPayload, ApplicationRejectPayload)
+from app_backend.schemas.placement import PlacementResponse
+from app_backend.features.application import (
+    ListPendingVerificationCommand, list_pending_verification_command_handler,
+    VerifyApplicationCommand, verify_application_command_handler,
+    RejectApplicationProofCommand, reject_application_proof_command_handler
+)
+from app_backend.features.placement import (
+    ListAdminPlacementsCommand, list_admin_placements_command_handler
+)
 from app_backend.shared.database import get_session
 from app_backend.shared.dependencies import (get_current_active_user,
                                              require_admin)
@@ -450,3 +460,85 @@ async def delete_company(
             else HTTPStatus.CONFLICT
         )
         raise HTTPException(status_code=status, detail=result.error_message)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Manage Applications (Section 4)
+# ──────────────────────────────────────────────────────────────────────────────
+
+@router.get(
+    "/applications/pending-verification",
+    response_model=List[ApplicationResponse],
+    summary="Daftar lamaran pending verifikasi",
+)
+async def list_pending_verification(
+    session=Depends(get_session),
+    _: DomainUser = Depends(require_admin),
+) -> List[ApplicationResponse]:
+    result = list_pending_verification_command_handler(ListPendingVerificationCommand(), session)
+    if result.got_error():
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=result.error_message)
+    return result.items
+
+@router.post(
+    "/applications/{application_id}/verify",
+    summary="Verifikasi dan buat placement",
+)
+async def verify_application(
+    application_id: uuid.UUID,
+    payload: ApplicationVerifyPayload,
+    session=Depends(get_session),
+    current_admin: DomainUser = Depends(require_admin),
+):
+    result = verify_application_command_handler(
+        VerifyApplicationCommand(
+            application_id=application_id, 
+            admin_id=current_admin.id,
+            start_date=payload.start_date,
+            end_date=payload.end_date
+        ), 
+        session
+    )
+    if result.got_error():
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=result.error_message)
+    return {"message": "Placement berhasil dibuat", "placement_id": result.placement.id}
+
+@router.post(
+    "/applications/{application_id}/reject-proof",
+    response_model=ApplicationResponse,
+    summary="Tolak bukti dan kembalikan ke OFFERED",
+)
+async def reject_application_proof(
+    application_id: uuid.UUID,
+    payload: ApplicationRejectPayload,
+    session=Depends(get_session),
+    current_admin: DomainUser = Depends(require_admin),
+):
+    result = reject_application_proof_command_handler(
+        RejectApplicationProofCommand(
+            application_id=application_id, 
+            admin_id=current_admin.id,
+            reason=payload.reason
+        ), 
+        session
+    )
+    if result.got_error():
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=result.error_message)
+    return result.application
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Manage Placements (Section 5)
+# ──────────────────────────────────────────────────────────────────────────────
+
+@router.get(
+    "/placements",
+    response_model=List[PlacementResponse],
+    summary="Daftar semua penempatan",
+)
+async def list_admin_placements(
+    session=Depends(get_session),
+    _: DomainUser = Depends(require_admin),
+) -> List[PlacementResponse]:
+    result = list_admin_placements_command_handler(ListAdminPlacementsCommand(), session)
+    if result.got_error():
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=result.error_message)
+    return result.placements

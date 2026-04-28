@@ -13,6 +13,9 @@ load_dotenv()
 class Settings(BaseSettings):
     """Konfigurasi aplikasi"""
 
+    # Environment (development, staging, production)
+    environment: str = os.getenv("ENVIRONMENT", "development")
+
     db_url: str = os.getenv(
         "DATABASE_URL",
         "postgresql://user:password@localhost:5432/internship_career_tracker",
@@ -48,6 +51,16 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def is_development(self) -> bool:
+        """Check if running in development mode."""
+        return self.environment.lower() in ("development", "dev", "local")
+
+    @property
+    def is_production(self) -> bool:
+        """Check if running in production mode."""
+        return self.environment.lower() in ("production", "prod")
 
 
 settings = Settings()

@@ -280,3 +280,42 @@ def test_update_status_unauthenticated(client_no_auth):
     resp = client_no_auth.patch(STATUS_UPDATE_URL, json={"new_status": "INTERVIEW"})
 
     assert resp.status_code == 401
+# ─── Self-Reporting Pipeline ──────────────────────────────────────────────────
+
+def test_update_application_status_success(client_as_student):
+    with patch("app_backend.routers.api.application.update_application_status_command_handler") as mock_handler:
+        from app_backend.schemas.application import ApplicationResponse
+        mock_handler.return_value = MagicMock(
+            got_error=lambda: False,
+            application=ApplicationResponse(
+                id=APPLICATION_ID,
+                vacancy_id=VACANCY_ID,
+                student_id=STUDENT_USER_ID,
+                cv_snapshot_url="https://example.com/cv.pdf",
+                status="INTERVIEW",
+            )
+        )
+        resp = client_as_student.patch(f"/api/v1/applications/{APPLICATION_ID}/status", json={"status": "INTERVIEW"})
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "INTERVIEW"
+
+def test_upload_application_proof_success(client_as_student):
+    with patch("app_backend.routers.api.application.upload_application_proof_command_handler") as mock_handler:
+        mock_handler.return_value = MagicMock(
+            got_error=lambda: False,
+            message="Bukti berhasil diunggah",
+            proof_url="/uploads/proofs/test.pdf"
+        )
+        files = {"file": ("test.pdf", b"dummy content", "application/pdf")}
+        resp = client_as_student.post(f"/api/v1/applications/{APPLICATION_ID}/proof", files=files)
+    assert resp.status_code == 200
+    assert resp.json()["proof_url"] == "/uploads/proofs/test.pdf"
+
+def test_get_application_history_success(client_as_student):
+    with patch("app_backend.routers.api.application.get_application_history_command_handler") as mock_handler:
+        mock_handler.return_value = MagicMock(
+            got_error=lambda: False,
+            logs=[]
+        )
+        resp = client_as_student.get(f"/api/v1/applications/{APPLICATION_ID}/history")
+    assert resp.status_code == 200

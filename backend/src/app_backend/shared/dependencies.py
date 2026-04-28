@@ -140,18 +140,67 @@ async def require_student(
 
 
 async def get_current_active_student(
-    current_student: DomainStudent = Depends(get_current_student),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    session: Session = Depends(get_session),
 ) -> DomainStudent:
-    """Pastikan student profile aktif."""
-    # Check if user is active via Users table
-    session = next(get_session())
-    user = session.query(Users).filter(Users.id == current_student.user_id).first()
-    if user is None or not user.is_active:
+    """
+    Pastikan student profile aktif.
+    Menggunakan dependency injection untuk session agar tidak ada leak.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Kredensial tidak valid",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    payload = decode_access_token(credentials.credentials)
+    if not payload or not verify_token_type(payload, "access"):
+        raise credentials_exception
+
+    user_id_str: Optional[str] = payload.get("user_id")
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except (TypeError, ValueError):
+        raise credentials_exception
+
+    # Get user and check if active
+    user = session.query(Users).filter(Users.id == user_id).first()
+    if user is None:
+        raise credentials_exception
+
+    if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Akun dinonaktifkan. Hubungi admin.",
         )
-    return current_student
+
+    if user.role != "STUDENT":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Akses ditolak. Hanya STUDENT.",
+        )
+
+    # Get student profile
+    profile = session.query(ProfilesStudent).filter(ProfilesStudent.user_id == user_id).first()
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profil mahasiswa tidak ditemukan",
+        )
+
+    return DomainStudent(
+        user_id=profile.user_id,
+        nim=profile.nim,
+        full_name=profile.full_name,
+        semester=profile.semester,
+        department_id=profile.department_id,
+        gpa=profile.gpa,
+        phone_number=profile.phone_number,
+        linkedin_url=profile.linkedin_url,
+        cv_url=profile.cv_url,
+        is_mbkm_eligible=profile.is_mbkm_eligible if profile.is_mbkm_eligible else False,
+        updated_at=profile.updated_at,
+    )
 
 
 def require_roles(roles: list[str]):

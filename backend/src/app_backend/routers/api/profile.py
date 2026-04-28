@@ -10,13 +10,15 @@ from __future__ import annotations
 
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
 from app_backend.domain.user import User as DomainUser
 from app_backend.features.profile import (GetStudentProfileCommand,
                                           UpdateCVDataCommand,
+                                          UploadCVCommand,
                                           get_student_profile_command_handler,
-                                          update_cv_data_command_handler)
+                                          update_cv_data_command_handler,
+                                          upload_cv_command_handler)
 from app_backend.schemas.profile import CVDataUpdate, StudentProfileResponse
 from app_backend.shared.database import get_session
 from app_backend.shared.dependencies import require_student
@@ -93,3 +95,33 @@ async def update_cv_data(
             detail=result.error_message,
         )
     return {"message": result.message}
+
+
+@router.post(
+    "/student/cv",
+    status_code=HTTPStatus.OK,
+    summary="Upload CV mahasiswa",
+)
+async def upload_cv(
+    file: UploadFile = File(...),
+    session=Depends(get_session),
+    current_user: DomainUser = Depends(require_student),
+) -> dict:
+    """
+    Upload CV mahasiswa dalam format PDF.
+    - **file**: File PDF CV (max 5MB, format aplikasi PDF).
+    """
+    result = upload_cv_command_handler(
+        command=UploadCVCommand(
+            user_id=current_user.id,
+            file=file,
+        ),
+        session=session,
+    )
+    if result.got_error():
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=result.error_message,
+        )
+    return {"message": result.message, "cv_url": result.cv_url}
+

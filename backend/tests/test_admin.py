@@ -646,3 +646,41 @@ def test_company_endpoints_forbidden_for_student(client_as_student):
 def test_company_endpoints_unauthenticated(client_no_auth):
     resp = client_no_auth.get("/api/v1/admin/companies")
     assert resp.status_code == 401
+
+# ════════════════════════════════════════════════════════════════════════════
+#  Applications Admin (Phase 4)
+# ════════════════════════════════════════════════════════════════════════════
+
+def test_list_pending_verification(client_as_admin):
+    with patch("app_backend.routers.api.admin.list_pending_verification_command_handler") as mock_h:
+        mock_h.return_value = MagicMock(got_error=lambda: False, items=[])
+        resp = client_as_admin.get("/api/v1/admin/applications/pending-verification")
+    assert resp.status_code == 200
+
+def test_verify_application_success(client_as_admin):
+    with patch("app_backend.routers.api.admin.verify_application_command_handler") as mock_h:
+        mock_h.return_value = MagicMock(got_error=lambda: False, placement=MagicMock(id=uuid.uuid4()))
+        resp = client_as_admin.post(
+            f"/api/v1/admin/applications/{uuid.uuid4()}/verify",
+            json={"start_date": "2026-06-01", "end_date": "2026-08-31"}
+        )
+    assert resp.status_code == 200
+
+def test_reject_application_proof_success(client_as_admin):
+    with patch("app_backend.routers.api.admin.reject_application_proof_command_handler") as mock_h:
+        from app_backend.schemas.application import ApplicationResponse
+        mock_h.return_value = MagicMock(
+            got_error=lambda: False,
+            application=ApplicationResponse(
+                id=uuid.uuid4(),
+                vacancy_id=uuid.uuid4(),
+                student_id=STUDENT_USER_ID,
+                cv_snapshot_url="https://example.com/cv.pdf",
+                status="OFFERED"
+            )
+        )
+        resp = client_as_admin.post(
+            f"/api/v1/admin/applications/{uuid.uuid4()}/reject-proof",
+            json={"reason": "Bukti tidak valid"}
+        )
+    assert resp.status_code == 200

@@ -1,0 +1,20 @@
+{
+    "education": [
+        {
+            "index": 0,
+            "name": "Institut Pertanian Ngawi",
+            "jenjang": "S1",
+            "jurusan": "Teknologi Pertanian Ngawi",
+            "nilai": "3.93",
+            "lulus": "23-2-2025"
+        },
+        {
+            "index": 1,
+            "name": "SMA Sukashawarma 14 Cimanggu Bogor",
+            "jenjang": "SMA/SMK",
+            "jurusan": "Rekayasa Perangakat agak keras",
+            "nilai": "97.77",
+            "lulus": "21-6-2021"
+        }
+    ]
+}
