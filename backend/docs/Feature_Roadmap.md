@@ -368,16 +368,16 @@ Setiap worker didaftarkan di `app/workers/` sebagai Celery task dengan signature
 
 ### Report Generation
 
-- [ ] Endpoint `POST /placements/:id/report/generate`: Trigger pembuatan laporan akhir
-- [ ] Guard: laporan hanya bisa digenerate jika `placement.end_date <= TODAY()`
-- [ ] Celery task `generate_final_report(placement_id)`:
-  - [ ] Fetch semua `activity_logs` untuk placement tersebut, urut berdasarkan `log_date` ASC
-  - [ ] Gunakan `description_raw` sebagai konten log
-  - [ ] Agregasi menggunakan Python Pandas: ringkasan per minggu, total jam, distribusi kegiatan
-  - [ ] Render ke PDF template kampus menggunakan ReportLab (kop surat, tanda tangan, format PPKI)
-  - [ ] Upload PDF hasil ke Object Storage lokal
-  - [ ] Update `public.placements.auto_generated_report_url` dengan URL PDF yang dihasilkan
-- [ ] Endpoint `GET /placements/:id/report`: Return `auto_generated_report_url` jika sudah tersedia, atau status `generating` / `not_generated`
+- [x] Endpoint `POST /placements/:id/report/generate`: Trigger pembuatan laporan akhir
+- [x] Guard: laporan hanya bisa digenerate jika `placement.end_date <= TODAY()`
+- [x] Celery task `generate_final_report(placement_id)`:
+  - [x] Fetch semua `activity_logs` untuk placement tersebut, urut berdasarkan `log_date` ASC
+  - [x] Gunakan `description_raw` sebagai konten log
+  - [x] Agregasi menggunakan Python Pandas: ringkasan per minggu, total jam, distribusi kegiatan
+  - [x] Render ke PDF template kampus menggunakan ReportLab (kop surat, tanda tangan, format PPKI)
+  - [x] Upload PDF hasil ke Object Storage lokal
+  - [x] Update `public.placements.auto_generated_report_url` dengan URL PDF yang dihasilkan
+- [x] Endpoint `GET /placements/:id/report`: Return `auto_generated_report_url` jika sudah tersedia, atau status `generating` / `not_generated`
 
 ### Surat Pengantar Generator
 
