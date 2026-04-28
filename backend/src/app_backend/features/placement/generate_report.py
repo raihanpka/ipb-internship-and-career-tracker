@@ -5,6 +5,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+from app_backend.models.activity_logs import ActivityLogs
 from app_backend.models.placements import Placements
 from app_backend.shared.tasks.report_tasks import generate_final_report
 
@@ -41,6 +42,13 @@ def generate_report_command_handler(
     if placement.end_date > date.today():
         return GenerateReportResult(
             error_message="Laporan hanya bisa digenerate setelah masa penempatan selesai",
+            error_code=400,
+        )
+
+    log_count = session.query(ActivityLogs).filter_by(placement_id=placement.id).count()
+    if log_count == 0:
+        return GenerateReportResult(
+            error_message="Tidak ada log aktivitas. Tambahkan log terlebih dahulu sebelum generate laporan.",
             error_code=400,
         )
 

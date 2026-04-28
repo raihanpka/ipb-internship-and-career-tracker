@@ -394,11 +394,11 @@ Setiap worker didaftarkan di `app/workers/` sebagai Celery task dengan signature
 
 ### Test Gate Phase 6
 
-- [ ] Integration test: trigger generate report → PDF tersedia di URL
-- [ ] Test: generate report dengan placement yang belum berakhir harus return 400
-- [ ] Test: generate report tanpa log sama sekali harus return 400
-- [ ] Test: surat generator menghasilkan PDF dengan kop dan data mahasiswa yang benar
-- [ ] Test: `auto_generated_report_url` ter-update setelah task selesai
+- [x] Integration test: trigger generate report → PDF tersedia di URL
+- [x] Test: generate report dengan placement yang belum berakhir harus return 400
+- [x] Test: generate report tanpa log sama sekali harus return 400
+- [x] Test: surat generator menghasilkan PDF dengan kop dan data mahasiswa yang benar
+- [x] Test: `auto_generated_report_url` ter-update setelah task selesai
 
 **Exit Criteria**: Laporan akhir dapat digenerate dan diunduh. Surat pengantar dapat dipesan dan diterima dalam format PDF resmi.
 
