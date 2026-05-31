@@ -43,6 +43,10 @@ export const useAuth = () => {
     mutationFn: authService.requestPasswordReset,
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: authService.resetPassword,
+  });
+
   const verifyEmailMutation = useMutation({
     mutationFn: authService.verifyEmail,
   });
@@ -86,6 +90,10 @@ export const useAuth = () => {
     isRequestingReset: forgotPasswordMutation.isPending,
     resetSent: forgotPasswordMutation.isSuccess,
     resetError: forgotPasswordMutation.error,
+    resetPassword: resetPasswordMutation.mutateAsync,
+    isResettingPassword: resetPasswordMutation.isPending,
+    resetPasswordError: resetPasswordMutation.error,
+    resetPasswordSuccess: resetPasswordMutation.isSuccess,
     verifyEmail: verifyEmailMutation.mutateAsync,
     isVerifying: verifyEmailMutation.isPending,
     updateProfile: updateProfileMutation.mutateAsync,

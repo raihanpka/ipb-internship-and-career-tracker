@@ -6,6 +6,7 @@ import Wishlist from "./pages/portal/Wishlist";
 import Login from "./pages/auth/Login";
 import Registration from "./pages/auth/Registrasi";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Dashboard from "./pages/portal/Dashboard";
 import Lowongan from "./pages/portal/Lowongan";
@@ -112,6 +113,7 @@ function App() {
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/registration" element={<PublicRoute><Registration /></PublicRoute>} />
         <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+        <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
         <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* App (protected) with nested routes */}

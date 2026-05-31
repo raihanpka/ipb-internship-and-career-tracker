@@ -25,6 +25,10 @@ def list_admin_placements_command_handler(
     session: Session,
 ) -> ListAdminPlacementsResult:
     # Optional filtering can be added here
-    placements = session.query(Placements).all()
+    from sqlalchemy.orm import joinedload
+    placements = session.query(Placements).options(
+        joinedload(Placements.student),
+        joinedload(Placements.company)
+    ).all()
 
     return ListAdminPlacementsResult(placements=placements)

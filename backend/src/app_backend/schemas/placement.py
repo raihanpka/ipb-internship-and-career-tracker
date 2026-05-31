@@ -10,6 +10,8 @@ class PlacementResponse(BaseModel):
 
     id: uuid.UUID
     student_id: uuid.UUID
+    student_name: Optional[str] = None
+    student_nim: Optional[str] = None
     company_id: uuid.UUID
     company_name: Optional[str] = None
     start_date: datetime.date

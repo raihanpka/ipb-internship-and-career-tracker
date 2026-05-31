@@ -165,9 +165,7 @@ def parse_cv_skills(
         raise self.retry(exc=exc)
 
 
-@shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def enhance_log_description(
-    self,
     log_id: str,
     raw_description: str,
 ) -> Dict:
@@ -270,7 +268,7 @@ Teks hasil pemolesan profesional formal:""",
         return TaskResult(success=True, result=result).dict()
 
     except Exception as exc:
-        raise self.retry(exc=exc)
+        return TaskResult(success=False, error=str(exc)).dict()
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)

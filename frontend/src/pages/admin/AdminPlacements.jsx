@@ -21,12 +21,12 @@ function AdminPlacements() {
   } = useAdminPlacements();
 
   const filteredPlacements = placements.filter(placement => {
-    // We don't have student name in PlacementResponse by default unless backend joins it. 
-    // Usually company_name or status is what we filter by.
     const term = searchTerm.toLowerCase();
     const companyMatch = placement.company_name?.toLowerCase().includes(term);
     const statusMatch = placement.status?.toLowerCase().includes(term);
-    return companyMatch || statusMatch;
+    const nameMatch = placement.student_name?.toLowerCase().includes(term);
+    const nimMatch = placement.student_nim?.toLowerCase().includes(term);
+    return companyMatch || statusMatch || nameMatch || nimMatch;
   });
 
   if (isLoading) {
@@ -49,25 +49,31 @@ function AdminPlacements() {
   }
 
   return (
-    <div className="font-jakarta">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-sky-950">Data Penempatan (Placement)</h1>
-        <p className="text-zinc-500 mt-2">Daftar seluruh mahasiswa yang sedang menjalankan program magang.</p>
+    <div className="font-jakarta pb-20">
+      <div className="mb-8 bg-sky-950 p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+        <div className="relative z-10">
+          <h1 className="text-3xl sm:text-4xl font-extrabold">Data Penempatan (Placement)</h1>
+          <p className="text-sky-100/80 mt-3 max-w-2xl leading-relaxed">
+            Daftar seluruh mahasiswa yang sedang atau telah menjalankan program magang. 
+            <strong>Catatan:</strong> Data di sini otomatis ditambahkan ketika Anda memverifikasi lamaran mahasiswa (mengubah status menjadi ACCEPTED) pada menu <strong>Verifikasi</strong>.
+          </p>
+        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-sky-400/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
       </div>
 
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
         <div className="relative w-full md:w-96">
           <PiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
           <input
             type="text"
-            placeholder="Cari berdasarkan perusahaan atau status..."
+            placeholder="Cari nama, NIM, perusahaan, atau status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 outline-none transition-all"
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none transition-all font-medium"
           />
         </div>
-        <div className="w-full md:w-auto flex items-center justify-center gap-2 text-sm font-bold text-sky-950 bg-sky-50 px-4 py-2.5 rounded-lg border border-sky-100">
+        <div className="w-full md:w-auto flex items-center justify-center gap-2 text-sm font-bold text-sky-950 bg-sky-50 px-5 py-3 rounded-xl border border-sky-100">
           <PiUserList size={20} />
           Total Penempatan: {filteredPlacements.length}
         </div>
@@ -75,29 +81,32 @@ function AdminPlacements() {
 
       {/* Content */}
       {filteredPlacements.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-slate-100">
+        <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-slate-100">
           <PiBuildings size={64} className="mx-auto text-zinc-300 mb-4" />
           <h2 className="text-xl font-bold text-slate-700">Tidak Ada Data</h2>
           <p className="text-slate-500 mt-2">Belum ada penempatan yang sesuai dengan pencarian Anda.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-sky-950 text-white">
+              <thead className="bg-sky-50/50 text-slate-600 border-b border-slate-100">
                 <tr>
-                  <th className="p-4 font-bold">Mahasiswa (ID)</th>
-                  <th className="p-4 font-bold">Perusahaan</th>
-                  <th className="p-4 font-bold">Periode Magang</th>
-                  <th className="p-4 font-bold">Pembimbing Lapangan</th>
-                  <th className="p-4 font-bold">Status</th>
+                  <th className="p-5 font-bold uppercase tracking-wider text-xs">Mahasiswa</th>
+                  <th className="p-5 font-bold uppercase tracking-wider text-xs">Perusahaan</th>
+                  <th className="p-5 font-bold uppercase tracking-wider text-xs">Periode Magang</th>
+                  <th className="p-5 font-bold uppercase tracking-wider text-xs">Pembimbing Lapangan</th>
+                  <th className="p-5 font-bold uppercase tracking-wider text-xs">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredPlacements.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-sky-950">{p.student_id.substring(0, 8).toUpperCase()}</div>
+                    <td className="p-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-sky-950 text-base">{p.student_name || "Nama Tidak Diketahui"}</span>
+                        <span className="text-xs text-slate-500 font-medium">{p.student_nim || p.student_id.substring(0, 8).toUpperCase()}</span>
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">

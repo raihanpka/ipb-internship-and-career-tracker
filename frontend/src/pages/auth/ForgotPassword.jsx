@@ -58,10 +58,10 @@ function ForgotPassword() {
 								</div>
 							</div>
 							<button 
-								onClick={() => navigate("/login")}
+								onClick={() => navigate("/reset-password")}
 								className="w-full py-4 bg-[#002957] text-white rounded-xl font-bold transition-all hover:bg-[#001f42]"
 							>
-								Kembali ke Login
+								Masukkan Token Reset
 							</button>
 						</div>
 					) : (

@@ -29,10 +29,20 @@
   
   button:focus, 
   a:focus,
-  input:focus,
   select:focus {
     outline: none !important;
     box-shadow: none !important;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]), 
+  textarea, 
+  select {
+    @apply bg-[#001f42] text-white border-transparent placeholder:text-sky-200/50 focus:ring-2 focus:ring-sky-500 !important;
+  }
+
+  /* Specific fix for inputs with icons */
+  input, textarea, select {
+    color: white !important;
   }
 
   /* Global select reset for custom icons */

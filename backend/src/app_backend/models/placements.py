@@ -79,3 +79,15 @@ class Placements(Base):
     company: Mapped["MasterExternalCompanies"] = relationship("MasterExternalCompanies", back_populates="placements")
     student: Mapped["ProfilesStudent"] = relationship("ProfilesStudent", back_populates="placements")
     activity_logs: Mapped[list["ActivityLogs"]] = relationship("ActivityLogs", back_populates="placement")
+
+    @property
+    def student_name(self) -> Optional[str]:
+        return self.student.full_name if self.student else None
+
+    @property
+    def student_nim(self) -> Optional[str]:
+        return self.student.nim if self.student else None
+
+    @property
+    def company_name(self) -> Optional[str]:
+        return self.company.name if self.company else None
