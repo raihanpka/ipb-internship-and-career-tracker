@@ -37,7 +37,7 @@
   input:not([type="checkbox"]):not([type="radio"]), 
   textarea, 
   select {
-    @apply bg-[#001f42] text-white border-transparent placeholder:text-sky-200/50 focus:ring-2 focus:ring-sky-500 !important;
+    @apply !bg-[#001f42] !text-white !border-transparent placeholder:!text-sky-200/50 focus:!ring-2 focus:!ring-sky-500;
   }
 
   /* Specific fix for inputs with icons */
