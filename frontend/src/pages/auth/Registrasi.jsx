@@ -17,7 +17,9 @@ import {
   PiGraph,
   PiSpinnerGap,
   PiBookOpenText,
-  PiArrowLeft
+  PiArrowLeft,
+  PiBuildings,
+  PiCaretDown
 } from "react-icons/pi";
 
 const registrationSchema = z.object({
@@ -27,6 +29,7 @@ const registrationSchema = z.object({
     .max(20, "NIM maksimal 20 karakter")
     .regex(/^[A-Za-z][A-Za-z0-9]+$/, "Format NIM tidak valid. Harus diawali dengan huruf dan hanya berisi huruf/angka (Contoh: G64012012)"),
   semester: z.coerce.number().min(1, "Semester minimal 1").max(14, "Semester maksimal 14"),
+  department_id: z.string().min(1, "Wajib memilih departemen"),
   email: z.string().email("Format email tidak valid").endsWith("@apps.ipb.ac.id", "Wajib menggunakan email institusi @apps.ipb.ac.id"),
   password: z.string().min(8, "Kata sandi minimal 8 karakter")
 });
@@ -38,15 +41,28 @@ function Registration() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [emailCheck, setEmailCheck] = useState({ isLoading: false, isAvailable: null, message: "" });
 
-	const { register, handleSubmit, control, formState: { errors } } = useForm({
+	const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm({
 		resolver: zodResolver(registrationSchema),
-		defaultValues: { semester: 1 }
+		defaultValues: { semester: 1, department_id: "" }
 	});
 
 	const emailValue = useWatch({
 		control,
 		name: "email",
 	});
+
+	const [departments, setDepartments] = useState([]);
+	const [facultyFilter, setFacultyFilter] = useState("");
+	const [isFacultyOpen, setIsFacultyOpen] = useState(false);
+	const [isDeptOpen, setIsDeptOpen] = useState(false);
+
+	useEffect(() => {
+		authService.getDepartments().then(data => {
+			if (data) setDepartments(data);
+		});
+	}, []);
+
+	const uniqueFaculties = [...new Set(departments.map(d => d.faculty))].filter(Boolean).sort();
 
 	useEffect(() => {
 		const timer = setTimeout(async () => {
@@ -142,6 +158,88 @@ function Registration() {
 										/>
 									</div>
 									{errors.semester && <p className="text-xs font-bold text-red-500">{errors.semester.message}</p>}
+								</div>
+							</div>
+
+							{/* Fakultas & Departemen */}
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<label className="text-sm font-bold text-[#002957] ml-1 uppercase tracking-wider">Fakultas</label>
+									<div className="relative">
+										<button
+											type="button"
+											onClick={() => setIsFacultyOpen(!isFacultyOpen)}
+											className="w-full pl-12 pr-4 py-3.5 bg-[#E8F1FF] border-none rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all font-medium text-sm text-left flex justify-between items-center"
+										>
+											<PiBuildings className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
+											<span className={`truncate ${facultyFilter ? "text-zinc-800" : "text-zinc-400"}`}>
+												{facultyFilter || "Pilih Fakultas"}
+											</span>
+											<PiCaretDown size={18} className="text-zinc-400" />
+										</button>
+										{isFacultyOpen && (
+											<>
+												<div className="fixed inset-0 z-40" onClick={() => setIsFacultyOpen(false)}></div>
+												<div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 max-h-64 overflow-y-auto">
+													{uniqueFaculties.map(f => (
+														<button
+															type="button"
+															key={f}
+															onClick={() => {
+																setFacultyFilter(f);
+																setIsFacultyOpen(false);
+																setValue("department_id", "", { shouldValidate: true });
+															}}
+															className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-slate-50 last:border-0 ${facultyFilter === f ? "bg-sky-50 font-bold text-sky-900" : "hover:bg-slate-50 font-medium text-slate-700"}`}
+														>
+															{f}
+														</button>
+													))}
+												</div>
+											</>
+										)}
+									</div>
+								</div>
+
+								<div className="space-y-2">
+									<label className="text-sm font-bold text-[#002957] ml-1 uppercase tracking-wider">Departemen</label>
+									<div className="relative">
+										<button
+											type="button"
+											disabled={!facultyFilter}
+											onClick={() => setIsDeptOpen(!isDeptOpen)}
+											className={`w-full pl-12 pr-4 py-3.5 ${!facultyFilter ? "bg-zinc-100 cursor-not-allowed" : "bg-[#E8F1FF] focus:ring-2 focus:ring-sky-500"} border-none rounded-xl outline-none transition-all font-medium text-sm text-left flex justify-between items-center`}
+										>
+											<PiGraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
+											<span className={`truncate ${watch("department_id") ? "text-zinc-800" : "text-zinc-400"}`}>
+												{watch("department_id") 
+													? departments.find(d => d.id === watch("department_id"))?.name 
+													: "Pilih Departemen"}
+											</span>
+											<PiCaretDown size={18} className="text-zinc-400" />
+										</button>
+										{isDeptOpen && facultyFilter && (
+											<>
+												<div className="fixed inset-0 z-40" onClick={() => setIsDeptOpen(false)}></div>
+												<div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 max-h-64 overflow-y-auto">
+													{departments.filter(d => d.faculty === facultyFilter).map(d => (
+														<button
+															type="button"
+															key={d.id}
+															onClick={() => {
+																setValue("department_id", d.id, { shouldValidate: true });
+																setIsDeptOpen(false);
+															}}
+															className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-slate-50 last:border-0 ${watch("department_id") === d.id ? "bg-sky-50 font-bold text-sky-900" : "hover:bg-slate-50 font-medium text-slate-700"}`}
+														>
+															{d.name}
+														</button>
+													))}
+												</div>
+											</>
+										)}
+									</div>
+									{errors.department_id && <p className="text-xs font-bold text-red-500">{errors.department_id.message}</p>}
 								</div>
 							</div>
 

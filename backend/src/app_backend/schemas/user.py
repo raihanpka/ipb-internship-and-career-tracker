@@ -37,6 +37,7 @@ class StudentRegister(BaseModel):
     nim: str = Field(..., min_length=6, max_length=20)
     full_name: str = Field(..., min_length=3, max_length=150)
     semester: int = Field(..., ge=1, le=14)
+    department_id: uuid.UUID
 
     @field_validator("email")
     @classmethod

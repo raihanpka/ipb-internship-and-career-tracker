@@ -69,6 +69,8 @@ function AdminUsers() {
         return (a.full_name || "").localeCompare(b.full_name || "");
     });
 
+    const [isDeptOpen, setIsDeptOpen] = useState(false);
+
     return (
         <div className="font-jakarta space-y-8 pb-20">
             {/* Header Banner */}
@@ -97,17 +99,35 @@ function AdminUsers() {
                     </div>
 
                     <div className="relative w-full md:w-64">
-                        <select
-                            className="w-full pl-4 pr-10 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-sky-500/10 outline-none transition-all font-bold appearance-none cursor-pointer"
-                            value={deptFilter}
-                            onChange={(e) => setDeptFilter(e.target.value)}
+                        <button
+                            onClick={() => setIsDeptOpen(!isDeptOpen)}
+                            className="w-full pl-4 pr-10 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-sky-500/10 outline-none transition-all font-bold text-left flex items-center justify-between"
                         >
-                            <option value="all">Semua Departemen</option>
-                            {departments?.map(d => (
-                                <option key={d.id} value={d.id}>{d.name}</option>
-                            ))}
-                        </select>
-                        <PiCaretDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            <span className="truncate">{deptFilter === "all" ? "Semua Departemen" : departments?.find(d => d.id === deptFilter)?.name || "Semua Departemen"}</span>
+                            <PiCaretDown size={18} className={`text-slate-400 transition-transform ${isDeptOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isDeptOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsDeptOpen(false)}></div>
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 max-h-64 overflow-y-auto">
+                                    <button
+                                        onClick={() => { setDeptFilter("all"); setIsDeptOpen(false); }}
+                                        className={`w-full text-left px-4 py-3 text-sm transition-colors ${deptFilter === "all" ? "bg-sky-50 font-bold text-sky-900" : "hover:bg-slate-50 font-medium text-slate-700"}`}
+                                    >
+                                        Semua Departemen
+                                    </button>
+                                    {departments?.map(d => (
+                                        <button
+                                            key={d.id}
+                                            onClick={() => { setDeptFilter(d.id); setIsDeptOpen(false); }}
+                                            className={`w-full text-left px-4 py-3 text-sm transition-colors border-t border-slate-50 ${deptFilter === d.id ? "bg-sky-50 font-bold text-sky-900" : "hover:bg-slate-50 font-medium text-slate-700"}`}
+                                        >
+                                            {d.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -237,7 +257,7 @@ function AdminUsers() {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="pt-16 p-5 sm:p-10 overflow-y-auto space-y-8 sm:space-y-10">
+                        <div className="pt-24 p-5 sm:p-10 overflow-y-auto space-y-8 sm:space-y-10">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5">
                                 <div>
                                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{selectedStudent.full_name}</h2>
@@ -279,8 +299,10 @@ function AdminUsers() {
                                         </h4>
                                         <div className="space-y-2 text-sm">
                                             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                                <p className="text-[10px] font-extrabold text-sky-800 uppercase mb-1">{selectedStudent.department_name || 'Program Studi'}</p>
-                                                <p className="text-slate-600 font-bold leading-snug">Semester {selectedStudent.semester || '-'}</p>
+                                                <p className="text-[10px] font-extrabold text-sky-800 uppercase mb-1">
+                                                    {selectedStudent.department_name ? `Departemen ${selectedStudent.department_name}` : 'Departemen Belum Diatur'}
+                                                </p>
+                                                <p className="text-slate-600 font-bold leading-snug">Semester {selectedStudent.semester || 'Belum Diatur'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -288,12 +310,13 @@ function AdminUsers() {
 
                                 <div className="space-y-6">
                                     <div className="space-y-3">
-                                        <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Tautan Profesional</h4>
+                                        <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Tautan</h4>
                                         <div className="flex flex-col gap-3">
                                             <a
                                                 href={selectedStudent.linkedin_url || "#"}
                                                 target="_blank"
-                                                className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedStudent.linkedin_url ? 'bg-sky-50 border-sky-100 text-sky-700 hover:bg-sky-100' : 'bg-slate-50 border-slate-100 text-slate-300 pointer-events-none'}`} rel="noreferrer"
+                                                onClick={(e) => { if (!selectedStudent.linkedin_url) { e.preventDefault(); toast.error("LinkedIn belum ditambahkan oleh mahasiswa."); } }}
+                                                className="flex items-center justify-between p-4 rounded-2xl border transition-all bg-sky-50 border-sky-100 text-sky-700 hover:bg-sky-100 cursor-pointer" rel="noreferrer"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <PiLinkedinLogoFill size={20} />
@@ -301,9 +324,10 @@ function AdminUsers() {
                                                 </div>
                                             </a>
                                             <a
-                                                href={resolveBackendAssetUrl(selectedStudent.cv_url) || "#"}
+                                                href={selectedStudent.cv_url ? resolveBackendAssetUrl(selectedStudent.cv_url) : "#"}
                                                 target="_blank"
-                                                className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedStudent.cv_url ? 'bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100' : 'bg-slate-50 border-slate-100 text-slate-300 pointer-events-none'}`} rel="noreferrer"
+                                                onClick={(e) => { if (!selectedStudent.cv_url) { e.preventDefault(); toast.error("CV belum diunggah oleh mahasiswa."); } }}
+                                                className="flex items-center justify-between p-4 rounded-2xl border transition-all bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100 cursor-pointer" rel="noreferrer"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <PiFilePdfBold size={20} />

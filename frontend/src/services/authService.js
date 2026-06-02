@@ -19,6 +19,14 @@ export const authService = {
       handleApiError(error, 'Registration failed');
     }
   },
+  getDepartments: async () => {
+    try {
+      const response = await api.get('/auth/departments');
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to fetch departments');
+    }
+  },
   checkAvailability: async (identifier) => {
     try {
       const response = await api.get(`/auth/register/check-availability?identifier=${identifier}`);

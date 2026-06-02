@@ -76,6 +76,7 @@ def register_student_command_handler(
             nim=command.payload.nim,
             full_name=command.payload.full_name,
             semester=command.payload.semester,
+            department_id=command.payload.department_id,
             is_mbkm_eligible=True,
             updated_at=now,
         )
