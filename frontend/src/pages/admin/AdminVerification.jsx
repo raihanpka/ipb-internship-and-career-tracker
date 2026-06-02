@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     PiCheckCircleFill, 
     PiXCircleFill, 
@@ -57,6 +57,14 @@ function AdminVerification() {
     });
 
     const activeApp = applications?.find(a => a.id === selectedApp?.id) || selectedApp;
+
+    useEffect(() => {
+        if (activeApp) {
+            setAdminNotes(activeApp.admin_notes || "");
+        } else {
+            setAdminNotes("");
+        }
+    }, [activeApp?.id, activeApp?.admin_notes]);
 
     const handleVerify = (id) => {
         if (!startDate || !endDate) {
