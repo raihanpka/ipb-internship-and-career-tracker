@@ -34,13 +34,14 @@ def get_application_stats_command_handler(
     session: Session,
 ) -> GetApplicationStatsResult:
 
-    total = session.query(func.count(Applications.id)).scalar() or 0
+    total = session.query(func.count(Applications.id)).filter(Applications.status != 'WITHDRAWN').scalar() or 0
 
     rows = (
         session.query(
             Applications.status,
             func.count(Applications.id).label("total"),
         )
+        .filter(Applications.status != 'WITHDRAWN')
         .group_by(Applications.status)
         .order_by(func.count(Applications.id).desc())
         .all()

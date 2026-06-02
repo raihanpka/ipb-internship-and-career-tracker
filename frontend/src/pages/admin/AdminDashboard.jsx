@@ -156,20 +156,24 @@ function AdminDashboard() {
                     </div>
                     <div className="p-6 space-y-4">
                         {(applicationStats?.status_breakdown || []).length > 0 ? (
-                            applicationStats.status_breakdown.map((item) => (
-                                <div key={item.status} className="flex items-center justify-between gap-4">
-                                    <span className="text-sm font-bold text-slate-600">{item.status}</span>
-                                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-sky-700 rounded-full"
-                                            style={{
-                                                width: `${applicationStats.total_applications ? Math.min(100, (item.total / applicationStats.total_applications) * 100) : 0}%`
-                                            }}
-                                        />
+                            (() => {
+                                const validItems = applicationStats.status_breakdown.filter(item => item.status.toUpperCase() !== 'WITHDRAWN');
+                                const validTotal = validItems.reduce((sum, item) => sum + item.total, 0);
+                                return validItems.length > 0 ? validItems.map((item) => (
+                                    <div key={item.status} className="flex items-center justify-between gap-4">
+                                        <span className="text-sm font-bold text-slate-600">{item.status}</span>
+                                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-sky-700 rounded-full"
+                                                style={{
+                                                    width: `${validTotal > 0 ? Math.min(100, (item.total / validTotal) * 100) : 0}%`
+                                                }}
+                                            />
+                                        </div>
+                                        <span className="text-sm font-bold text-slate-900 w-8 text-right">{item.total}</span>
                                     </div>
-                                    <span className="text-sm font-bold text-slate-900 w-8 text-right">{item.total}</span>
-                                </div>
-                            ))
+                                )) : <div className="py-8 text-center text-slate-400 text-sm">Belum ada data lamaran.</div>;
+                            })()
                         ) : (
                             <div className="py-8 text-center text-slate-400 text-sm">Belum ada data lamaran.</div>
                         )}

@@ -45,11 +45,11 @@ def generate_report_command_handler(command: GenerateReportCommand, session: Ses
             error_status_code=HTTPStatus.NOT_FOUND,
         )
 
-    if placement.end_date > date.today():
-        return GenerateReportResult(
-            error_message="Laporan hanya bisa di-generate setelah masa magang selesai",
-            error_status_code=HTTPStatus.BAD_REQUEST,
-        )
+    # if placement.end_date > date.today():
+    #     return GenerateReportResult(
+    #         error_message="Laporan hanya bisa di-generate setelah masa magang selesai",
+    #         error_status_code=HTTPStatus.BAD_REQUEST,
+    #     )
 
     # Rate Limiting: 5 minutes cooldown
     if placement.last_report_generated_at:

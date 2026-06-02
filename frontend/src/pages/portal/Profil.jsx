@@ -37,10 +37,12 @@ function Profil() {
 
 	const [isEditMode, setIsEditMode] = useState(false);
 	const [departments, setDepartments] = useState([]);
+	const [facultyFilter, setFacultyFilter] = useState("");
+	const [isFacultyOpen, setIsFacultyOpen] = useState(false);
 	const [isDeptOpen, setIsDeptOpen] = useState(false);
-	const [deptSearch, setDeptSearch] = useState("");
 	const [showSuccess, setShowSuccess] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
+	const facultyRef = useRef(null);
 	const dropdownRef = useRef(null);
 
 	// Fetch departments on mount
@@ -77,25 +79,30 @@ function Profil() {
 		}
 	}, [user]);
 
-	// If departments list loads after user, fill department_name when only id exists
+	// If departments list loads after user, fill department_name and faculty when only id exists
 	useEffect(() => {
-		if (departments.length > 0 && formData.department_id && !formData.department_name) {
+		if (departments.length > 0 && formData.department_id) {
 			const found = departments.find((d) => String(d.id) === String(formData.department_id));
 			if (found) {
-				// eslint-disable-next-line react-hooks/set-state-in-effect
-				setFormData((s) => ({ ...s, department_name: found.name }));
+				if (!formData.department_name) {
+					// eslint-disable-next-line react-hooks/set-state-in-effect
+					setFormData((s) => ({ ...s, department_name: found.name }));
+				}
+				if (!facultyFilter) {
+					setFacultyFilter(found.faculty);
+				}
 			}
 		}
-	}, [departments, formData.department_id, formData.department_name]);
+	}, [departments, formData.department_id, formData.department_name, facultyFilter]);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
 		function handleClickOutside(event) {
-			if (
-				dropdownRef.current &&
-				!dropdownRef.current.contains(event.target)
-			) {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
 				setIsDeptOpen(false);
+			}
+			if (facultyRef.current && !facultyRef.current.contains(event.target)) {
+				setIsFacultyOpen(false);
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside);
@@ -103,11 +110,7 @@ function Profil() {
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	const filteredDepts = departments.filter(
-		(d) =>
-			d.name.toLowerCase().includes(deptSearch.toLowerCase()) ||
-			d.faculty.toLowerCase().includes(deptSearch.toLowerCase()),
-	);
+	const uniqueFaculties = [...new Set(departments.map(d => d.faculty))].filter(Boolean).sort();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -382,112 +385,83 @@ function Profil() {
 								</div>
 							</div>
 
-							{/* Departemen (Searchable Dropdown) */}
-							<div
-								className="flex flex-col gap-1.5"
-								ref={dropdownRef}
-							>
+							{/* Fakultas (Dropdown) */}
+							<div className="flex flex-col gap-1.5" ref={facultyRef}>
 								<label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-									Departemen
+									Fakultas
 								</label>
 								<div className="relative">
-									<PiBuildings
-										size={20}
-										className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-									/>
+									<PiBuildings size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
 									<div
-										onClick={() =>
-											isEditMode && setIsDeptOpen(!isDeptOpen)
-										}
+										onClick={() => isEditMode && setIsFacultyOpen(!isFacultyOpen)}
 										className={`pl-10 pr-10 w-full py-2.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded text-sm focus:ring-2 focus:ring-sky-500 outline-none flex justify-between items-center ${isEditMode ? "cursor-pointer" : "cursor-not-allowed bg-zinc-100/50 text-zinc-500"}`}
 									>
-										<span
-											className={
-												formData.department_name
-													? "text-zinc-700"
-													: "text-zinc-400"
-											}
-										>
-											{formData.department_name ||
-												"Cari Departemen..."}
+										<span className={facultyFilter ? "text-zinc-700" : "text-zinc-400"}>
+											{facultyFilter || "Pilih Fakultas"}
 										</span>
-										<PiCaretDown
-											size={16}
-											className={`transition-transform duration-200 ${isDeptOpen ? "rotate-180" : ""}`}
-										/>
+										{isEditMode && <PiCaretDown size={16} className={`transition-transform duration-200 ${isFacultyOpen ? "rotate-180" : ""}`} />}
 									</div>
 
-									{isEditMode && isDeptOpen && (
-										<div className="absolute z-50 top-full left-0 w-full mt-2 bg-white border border-zinc-200 text-zinc-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-											<div className="p-3 border-b bg-zinc-50">
-												<div className="relative">
-													<PiMagnifyingGlass
-														size={16}
-														className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-													/>
-													<input
-														autoFocus
-														type="text"
-														className="w-full pl-9 pr-4 py-2 bg-white border border-zinc-200 text-zinc-700 rounded-lg text-xs outline-none focus:ring-2 focus:ring-sky-500"
-														placeholder="Ketik nama departemen..."
-														value={deptSearch}
-														onChange={(e) =>
-															setDeptSearch(
-																e.target.value,
-															)
-														}
-														onClick={(e) =>
-															e.stopPropagation()
-														}
-													/>
+									{isEditMode && isFacultyOpen && (
+										<div className="absolute z-50 top-full left-0 w-full mt-2 bg-white border border-zinc-200 text-zinc-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-60 overflow-y-auto">
+											{uniqueFaculties.map((f) => (
+												<div
+													key={f}
+													onClick={() => {
+														setFacultyFilter(f);
+														setFormData({ ...formData, department_id: "", department_name: "" });
+														setIsFacultyOpen(false);
+													}}
+													className={`px-4 py-3 hover:bg-sky-50 cursor-pointer transition-colors border-b last:border-0 border-zinc-50 text-sm font-bold ${facultyFilter === f ? "bg-sky-50 text-sky-900" : "text-zinc-800"}`}
+												>
+													{f}
 												</div>
-											</div>
-											<div className="max-h-60 overflow-y-auto">
-												{filteredDepts.length > 0 ? (
-													filteredDepts.map(
-														(dept) => (
-															<div
-																key={dept.id}
-																onClick={() => {
-																	setFormData(
-																		{
-																			...formData,
-																			department_id:
-																				dept.id,
-																			department_name:
-																				dept.name,
-																		},
-																	);
-																	setIsDeptOpen(
-																		false,
-																	);
-																	setDeptSearch(
-																		"",
-																	);
-																}}
-																className="px-4 py-3 hover:bg-sky-50 cursor-pointer transition-colors border-b last:border-0 border-zinc-50"
-															>
-																<div className="text-sm font-bold text-zinc-800">
-																	{dept.name}
-																</div>
-																<div className="text-[10px] text-sky-600 font-bold uppercase tracking-tighter">
-																	{
-																		dept.faculty
-																	}
-																</div>
-															</div>
-														),
-													)
-												) : (
-													<div className="px-4 py-6 text-center text-xs text-zinc-400">
-														Tidak ada hasil
-													</div>
-												)}
-											</div>
+											))}
 										</div>
 									)}
 								</div>
 							</div>
+
+							{/* Departemen (Dropdown) */}
+							<div className="flex flex-col gap-1.5" ref={dropdownRef}>
+								<label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+									Departemen
+								</label>
+								<div className="relative">
+									<PiGraduationCap size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+									<div
+										onClick={() => isEditMode && facultyFilter && setIsDeptOpen(!isDeptOpen)}
+										className={`pl-10 pr-10 w-full py-2.5 bg-zinc-50 border border-zinc-200 text-zinc-700 rounded text-sm focus:ring-2 focus:ring-sky-500 outline-none flex justify-between items-center ${isEditMode ? (facultyFilter ? "cursor-pointer" : "cursor-not-allowed bg-zinc-100/50 text-zinc-500") : "cursor-not-allowed bg-zinc-100/50 text-zinc-500"}`}
+									>
+										<span className={formData.department_name ? "text-zinc-700" : "text-zinc-400"}>
+											{formData.department_name || "Pilih Departemen"}
+										</span>
+										{isEditMode && facultyFilter && <PiCaretDown size={16} className={`transition-transform duration-200 ${isDeptOpen ? "rotate-180" : ""}`} />}
+									</div>
+
+									{isEditMode && isDeptOpen && facultyFilter && (
+										<div className="absolute z-50 top-full left-0 w-full mt-2 bg-white border border-zinc-200 text-zinc-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-60 overflow-y-auto">
+											{departments.filter(d => d.faculty === facultyFilter).map((dept) => (
+												<div
+													key={dept.id}
+													onClick={() => {
+														setFormData({
+															...formData,
+															department_id: dept.id,
+															department_name: dept.name,
+														});
+														setIsDeptOpen(false);
+													}}
+													className={`px-4 py-3 hover:bg-sky-50 cursor-pointer transition-colors border-b last:border-0 border-zinc-50 text-sm font-bold ${formData.department_id === dept.id ? "bg-sky-50 text-sky-900" : "text-zinc-800"}`}
+												>
+													{dept.name}
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							</div>
+
 							<div className="flex flex-col gap-1.5">
 								<label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
 									IPK Terakhir
