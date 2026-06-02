@@ -329,37 +329,37 @@ together {
 }
 
 ' Services
-together {
+' together {
 
-  class ScrapingService <<service>> #e1d5e7 {
-    --
-    + queueScrapeVacancies(urls): Task
-    + scrapeFromURL(url): Vacancies
-    - extractJobPosting(html): Map
-    - getOrCreateCompany(data): MasterExternalCompanies
-    - savePendingScrape(data): Vacancies
-    - attachMatchingSkills(vacancy): int
-  }
+'   class ScrapingService <<service>> #e1d5e7 {
+'     --
+'     + queueScrapeVacancies(urls): Task
+'     + scrapeFromURL(url): Vacancies
+'     - extractJobPosting(html): Map
+'     - getOrCreateCompany(data): MasterExternalCompanies
+'     - savePendingScrape(data): Vacancies
+'     - attachMatchingSkills(vacancy): int
+'   }
 
-  class AIMatchingService <<service>> #e1d5e7 {
-    --
-    + evaluateMatch(student, vacancy): Decimal
-    - extractCVMetadata(cvUrl): Map
-    - compareSkills(studentSkills, vacancySkills): Decimal
-    - generateRecommendation(matchScore): String
-    + enhanceActivityDescription(rawText): String
-  }
+'   class AIMatchingService <<service>> #e1d5e7 {
+'     --
+'     + evaluateMatch(student, vacancy): Decimal
+'     - extractCVMetadata(cvUrl): Map
+'     - compareSkills(studentSkills, vacancySkills): Decimal
+'     - generateRecommendation(matchScore): String
+'     + enhanceActivityDescription(rawText): String
+'   }
 
-  class NotificationService <<service>> #e1d5e7 {
-    --
-    + sendNotification(userId, title, message, channel): void
-    - scheduleNotification(notification): void
-    + processQueue(): void
-    + notifyApplicationUpdate(applicationId): void
-    + notifyNewVacancy(vacancyId): void
-  }
+'   class NotificationService <<service>> #e1d5e7 {
+'     --
+'     + sendNotification(userId, title, message, channel): void
+'     - scheduleNotification(notification): void
+'     + processQueue(): void
+'     + notifyApplicationUpdate(applicationId): void
+'     + notifyNewVacancy(vacancyId): void
+'   }
 
-}
+' }
 
 ' Inheritance
 ProfilesAdmin  --|> Users
@@ -388,13 +388,13 @@ DocumentRequests "0..*" --> "0..1" Vacancies               : referensi
 NotificationQueue "0..*" --> "1"  Users                   : dikirim kepada
 
 ' Service Dependencies
-AIMatchingService  ..> ProfilesStudent       : menganalisis profil & CV
-AIMatchingService  ..> Vacancies             : mengevaluasi kecocokan
-AIMatchingService  ..> Applications          : memperbarui skor
-AIMatchingService  ..> ActivityLogs          : menyempurnakan deskripsi
-ScrapingService    ..> Vacancies             : membuat draf lowongan
-ScrapingService    ..> MasterExternalCompanies : mengekstrak data perusahaan
-NotificationService ..> NotificationQueue    : mengelola antrian
-NotificationService ..> Applications         : notifikasi status
+' AIMatchingService  ..> ProfilesStudent       : menganalisis profil & CV
+' AIMatchingService  ..> Vacancies             : mengevaluasi kecocokan
+' AIMatchingService  ..> Applications          : memperbarui skor
+' AIMatchingService  ..> ActivityLogs          : menyempurnakan deskripsi
+' ScrapingService    ..> Vacancies             : membuat draf lowongan
+' ScrapingService    ..> MasterExternalCompanies : mengekstrak data perusahaan
+' NotificationService ..> NotificationQueue    : mengelola antrian
+' NotificationService ..> Applications         : notifikasi status
 
 @enduml
