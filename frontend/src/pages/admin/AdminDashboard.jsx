@@ -96,7 +96,7 @@ function AdminDashboard() {
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden text-sm">
                     <div className="p-5 sm:p-6 border-b border-slate-50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                         <h2 className="font-bold text-slate-900 text-lg">Verifikasi Perlu Tindakan</h2>
-                        <button className="text-sky-700 font-bold hover:underline">Lihat Semua</button>
+                        <Link to="/app/admin/verifikasi" className="text-sky-700 font-bold hover:underline">Lihat Semua</Link>
                     </div>
                     <div className="divide-y divide-slate-50">
                         {loadingApps ? (
@@ -113,9 +113,9 @@ function AdminDashboard() {
                                             <p className="text-slate-500 text-xs">{app.vacancy?.title} • {app.vacancy?.company?.name}</p>
                                         </div>
                                     </div>
-                                    <button className="w-full sm:w-auto bg-sky-950 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-sky-900">
-                                        Periksa
-                                    </button>
+                                    <span className="text-xs px-3 py-1 bg-sky-50 text-sky-700 rounded-full font-bold">
+                                        {app.status}
+                                    </span>
                                 </div>
                             ))
                         ) : (

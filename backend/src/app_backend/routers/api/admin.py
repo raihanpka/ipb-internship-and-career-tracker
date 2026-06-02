@@ -636,11 +636,24 @@ def admin_add_notes(
     session = Depends(get_session),
 ):
     from app_backend.models.applications import Applications
-    app = session.query(Applications).filter_by(id=application_id).first()
+    from app_backend.models.notification_queue import NotificationQueue
+    from sqlalchemy.orm import joinedload
+    
+    app = session.query(Applications).options(joinedload(Applications.vacancy)).filter_by(id=application_id).first()
     if not app:
         raise HTTPException(status_code=404, detail="Lamaran tidak ditemukan")
     
     app.admin_notes = payload.admin_notes
+    
+    notif = NotificationQueue(
+        title=f"Permintaan Data Tambahan: {app.vacancy.title}",
+        message=f"Admin mengirim pesan: {payload.admin_notes}",
+        user_id=app.student_id,
+        channel="IN_APP",
+        status="QUEUED",
+    )
+    session.add(notif)
+    
     session.commit()
     session.refresh(app)
     return app

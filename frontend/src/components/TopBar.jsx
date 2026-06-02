@@ -108,7 +108,7 @@ const TopBar = () => {
 																<PiTrash size={14} />
 															</button>
 														</div>
-														<p className="text-[11px] text-zinc-500 mt-1 leading-normal font-medium">
+														<p className="text-[11px] text-zinc-500 mt-1 leading-normal font-medium line-clamp-2">
 															{notif.message}
 														</p>
 														<span className="text-[9px] text-zinc-400 mt-1.5 block">
