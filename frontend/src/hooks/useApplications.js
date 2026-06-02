@@ -44,9 +44,15 @@ export const useApplications = ({ enabled } = {}) => {
     },
   });
 
-  // 4. Mutasi untuk melamar lowongan baru
   const applyMutation = useMutation({
     mutationFn: (data) => applicationService.apply(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applications', 'my'] });
+    },
+  });
+
+  const replyNotesMutation = useMutation({
+    mutationFn: ({ id, reply }) => applicationService.replyNotes(id, reply),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications', 'my'] });
     },
@@ -64,6 +70,8 @@ export const useApplications = ({ enabled } = {}) => {
     isUploadingProof: uploadProofMutation.isPending,
     apply: applyMutation.mutateAsync,
     isApplying: applyMutation.isPending,
+    replyNotes: replyNotesMutation.mutateAsync,
+    isReplyingNotes: replyNotesMutation.isPending,
   };
 };
 

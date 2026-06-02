@@ -43,6 +43,7 @@ from app_backend.schemas.application import (
     ApplicationResponse,
     ApplicationVerifyPayload,
     AdminApplicationResponse,
+    ApplicationAdminNotesPayload,
 )
 from app_backend.schemas.placement import PlacementResponse
 from app_backend.schemas.user import UserResponse
@@ -622,3 +623,24 @@ async def list_admin_placements(
     if result.got_error():
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=result.error_message)
     return result.placements
+
+@router.patch(
+    "/applications/{application_id}/notes",
+    response_model=AdminApplicationResponse,
+    summary="Admin adds note/requests data for application"
+)
+def admin_add_notes(
+    application_id: uuid.UUID,
+    payload: ApplicationAdminNotesPayload,
+    current_user: DomainUser = Depends(require_admin),
+    session = Depends(get_session),
+):
+    from app_backend.models.applications import Applications
+    app = session.query(Applications).filter_by(id=application_id).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Lamaran tidak ditemukan")
+    
+    app.admin_notes = payload.admin_notes
+    session.commit()
+    session.refresh(app)
+    return app

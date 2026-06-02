@@ -57,6 +57,8 @@ class ApplicationDetailResponse(BaseModel):
     applied_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     vacancy: Optional[VacancyMinimalResponse] = None
+    admin_notes: Optional[str] = None
+    student_reply: Optional[str] = None
 
 
 class ApplicationUpdateStatus(BaseModel):
@@ -72,6 +74,14 @@ class ApplicationVerifyPayload(BaseModel):
 
 class ApplicationRejectPayload(BaseModel):
     reason: str
+
+
+class ApplicationAdminNotesPayload(BaseModel):
+    admin_notes: str
+
+
+class ApplicationStudentReplyPayload(BaseModel):
+    student_reply: str
 
 
 class UserMinimal(BaseModel):
@@ -139,6 +149,8 @@ class AdminApplicationResponse(BaseModel):
     vacancy: VacancyAdminResponse
     match_percentage: Optional[float] = None
     proof_url: Optional[str] = None
+    admin_notes: Optional[str] = None
+    student_reply: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -164,5 +176,7 @@ class AdminApplicationResponse(BaseModel):
                 "vacancy": data.vacancy,
                 "match_percentage": match_percentage,
                 "proof_url": logs_with_proof[0].proof_url if logs_with_proof else None,
+                "admin_notes": getattr(data, "admin_notes", None),
+                "student_reply": getattr(data, "student_reply", None),
             }
         return data

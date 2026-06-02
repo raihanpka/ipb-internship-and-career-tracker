@@ -11,6 +11,7 @@ from app_backend.schemas.application import (
     ApplicationLogResponse,
     ApplicationResponse,
     ApplicationUpdateStatus,
+    ApplicationStudentReplyPayload,
     ApplicationDetailResponse,
 )
 from app_backend.shared.auth_dependencies import require_student
@@ -121,3 +122,26 @@ def get_application_history(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Gagal mengambil riwayat: {exc}",
         )
+
+
+@router.patch(
+    "/{application_id}/reply",
+    response_model=ApplicationDetailResponse,
+    summary="Student replies to admin notes"
+)
+def student_reply_notes(
+    application_id: uuid.UUID,
+    payload: ApplicationStudentReplyPayload,
+    current_user=Depends(require_student),
+    session=Depends(get_session),
+):
+    from app_backend.models.applications import Applications
+    app = session.query(Applications).filter_by(id=application_id, student_id=current_user.id).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Lamaran tidak ditemukan")
+    
+    app.student_reply = payload.student_reply
+    session.commit()
+    session.refresh(app)
+    return app
+

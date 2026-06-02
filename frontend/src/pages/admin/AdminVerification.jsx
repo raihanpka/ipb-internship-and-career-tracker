@@ -14,17 +14,20 @@ function AdminVerification() {
     const [remarks, setRemarks] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [adminNotes, setAdminNotes] = useState("");
 
     const {
         applications,
         isLoadingApplications: isLoading,
         verifyMutation,
-        rejectMutation
+        rejectMutation,
+        addNotesMutation
     } = useAdminVerification(() => {
         setSelectedApp(null);
         setRemarks("");
         setStartDate("");
         setEndDate("");
+        setAdminNotes("");
     });
 
     const handleVerify = (id) => {
@@ -81,7 +84,11 @@ function AdminVerification() {
                                         {app.student?.user?.full_name?.charAt(0)}
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-slate-900 truncate">{app.student?.user?.full_name}</h3>
+                                        <h3 className="font-bold text-slate-900 truncate flex items-center gap-2">
+                                            {app.student?.user?.full_name}
+                                            {app.status === 'APPLIED' && <span className="text-[9px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">Minta Didaftarkan</span>}
+                                            {app.status === 'ACCEPTED' && <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Butuh Validasi</span>}
+                                        </h3>
                                         <p className="text-slate-500 text-xs">{app.vacancy?.title} • {app.vacancy?.company?.name}</p>
                                         <div className="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                                             Diunggah: {new Date(app.created_at).toLocaleDateString('id-ID')}
@@ -155,59 +162,101 @@ function AdminVerification() {
                                 )}
                             </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Periode Penempatan</label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase">Mulai</span>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none"
+                            {selectedApp.status === 'ACCEPTED' ? (
+                                <>
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-500 uppercase">Periode Penempatan</label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase">Mulai</span>
+                                                <input
+                                                    type="date"
+                                                    value={startDate}
+                                                    onChange={(e) => setStartDate(e.target.value)}
+                                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase">Selesai</span>
+                                                <input
+                                                    type="date"
+                                                    value={endDate}
+                                                    min={startDate || undefined}
+                                                    onChange={(e) => setEndDate(e.target.value)}
+                                                    className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-500 uppercase">Catatan Verifikasi</label>
+                                        <textarea 
+                                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none h-32"
+                                            placeholder="Tambahkan catatan untuk mahasiswa..."
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
                                         />
                                     </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+                                        <button 
+                                            onClick={() => handleReject(selectedApp.id)}
+                                            disabled={rejectMutation.isPending || verifyMutation.isPending}
+                                            className="flex items-center justify-center gap-2 py-3 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
+                                        >
+                                            <PiXCircleFill size={20} />
+                                            Tolak
+                                        </button>
+                                        <button 
+                                            onClick={() => handleVerify(selectedApp.id)}
+                                            disabled={rejectMutation.isPending || verifyMutation.isPending}
+                                            className="flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200 disabled:opacity-50"
+                                        >
+                                            <PiCheckCircleFill size={20} />
+                                            Terima
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="p-4 bg-sky-50 rounded-xl border border-sky-100 mt-4 space-y-4">
                                     <div>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase">Selesai</span>
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            min={startDate || undefined}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="mt-1 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none"
+                                        <p className="text-sm font-bold text-sky-800 mb-1">Aksi Admin</p>
+                                        <p className="text-xs text-sky-700 leading-relaxed">
+                                            Mahasiswa ini baru saja mengajukan lamaran. Silakan gunakan <b>Curriculum Vitae</b> dan <b>Portfolio</b> di atas untuk mendaftarkan mahasiswa ke portal perusahaan secara manual.
+                                        </p>
+                                    </div>
+                                    <div className="pt-2 border-t border-sky-200/60">
+                                        <p className="text-xs font-bold text-sky-800 mb-2">Permintaan Data Tambahan</p>
+                                        <textarea
+                                            value={adminNotes || selectedApp.admin_notes || ""}
+                                            onChange={(e) => setAdminNotes(e.target.value)}
+                                            placeholder="Tulis pesan jika Anda butuh data tambahan dari mahasiswa..."
+                                            className="w-full p-3 bg-white border border-sky-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none min-h-[80px]"
                                         />
+                                        <div className="mt-2 flex justify-between items-center">
+                                            {selectedApp.student_reply ? (
+                                                <div className="flex-1 bg-white p-3 rounded-lg border border-emerald-200 mr-3">
+                                                    <span className="text-[10px] font-bold text-emerald-700 block mb-1">Balasan Mahasiswa:</span>
+                                                    <p className="text-xs text-slate-700 italic">"{selectedApp.student_reply}"</p>
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] text-slate-400 italic">Belum ada balasan</span>
+                                            )}
+                                            <button 
+                                                onClick={() => {
+                                                    if(!adminNotes) return alert('Pesan kosong!');
+                                                    addNotesMutation.mutate({ id: selectedApp.id, notes: adminNotes });
+                                                }}
+                                                disabled={addNotesMutation.isPending}
+                                                className="px-4 py-2 bg-sky-600 text-white font-bold text-xs rounded-lg hover:bg-sky-700 transition-colors whitespace-nowrap self-end"
+                                            >
+                                                {addNotesMutation.isPending ? 'Mengirim...' : 'Kirim Pesan'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Catatan Verifikasi</label>
-                                <textarea 
-                                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 outline-none h-32"
-                                    placeholder="Tambahkan catatan untuk mahasiswa..."
-                                    value={remarks}
-                                    onChange={(e) => setRemarks(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
-                                <button 
-                                    onClick={() => handleReject(selectedApp.id)}
-                                    disabled={rejectMutation.isPending || verifyMutation.isPending}
-                                    className="flex items-center justify-center gap-2 py-3 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
-                                >
-                                    <PiXCircleFill size={20} />
-                                    Tolak
-                                </button>
-                                <button 
-                                    onClick={() => handleVerify(selectedApp.id)}
-                                    disabled={rejectMutation.isPending || verifyMutation.isPending}
-                                    className="flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200 disabled:opacity-50"
-                                >
-                                    <PiCheckCircleFill size={20} />
-                                    Terima
-                                </button>
-                            </div>
+                            )}
                         </div>
                     ) : (
                         <div className="bg-slate-50 rounded-2xl border border-dashed border-slate-200 p-10 text-center text-slate-400 text-sm italic">

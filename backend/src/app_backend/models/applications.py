@@ -56,6 +56,9 @@ class Applications(Base):
     match_percentage: Mapped[Optional[decimal.Decimal]] = mapped_column(Numeric(5, 2))
     applied_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True), server_default=text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime(True), server_default=text("CURRENT_TIMESTAMP"))
+    
+    admin_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    student_reply: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Relationships
     student: Mapped["ProfilesStudent"] = relationship("ProfilesStudent", back_populates="applications")

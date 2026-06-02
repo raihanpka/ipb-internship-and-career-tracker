@@ -5,7 +5,7 @@ from typing import Any, Optional
 import redis
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/2")
-ANALYTICS_CACHE_TTL = 300  # 5 menit
+ANALYTICS_CACHE_TTL = 0  # Real-time (0 menit) untuk presentasi
 
 
 _redis_client = None

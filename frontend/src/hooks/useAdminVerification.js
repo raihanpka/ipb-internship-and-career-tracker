@@ -28,10 +28,19 @@ export function useAdminVerification(onSuccessAction) {
         }
     });
 
+    const addNotesMutation = useMutation({
+        mutationFn: ({ id, notes }) => adminService.addAdminNotes(id, notes),
+        onSuccess: () => {
+            queryClient.invalidateQueries(["admin", "pending-verifications"]);
+            toast.success("Catatan permintaan data berhasil dikirim");
+        }
+    });
+
     return {
         applications: pendingVerificationsQuery.data || [],
         isLoadingApplications: pendingVerificationsQuery.isLoading,
         verifyMutation,
-        rejectMutation
+        rejectMutation,
+        addNotesMutation
     };
 }

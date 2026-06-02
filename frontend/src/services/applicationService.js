@@ -46,6 +46,11 @@ export const applicationService = {
     const response = await api.get('/applications/my');
     return response.data;
   },
+
+  replyNotes: async (applicationId, reply) => {
+    const response = await api.patch(`/applications/${applicationId}/reply`, { student_reply: reply });
+    return response.data;
+  },
 };
 
 export default applicationService;

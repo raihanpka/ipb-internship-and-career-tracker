@@ -114,6 +114,8 @@ function Lamaran() {
 		isError, 
 		updateStatus, 
 		uploadProof,
+		replyNotes,
+		isReplyingNotes,
 		refetch
 	} = useApplications();
 	
@@ -410,6 +412,47 @@ function Lamaran() {
 									</div>
 								</div>
 
+								{/* Bagian Pesan Admin (Jika Ada) */}
+								{activeApp.admin_notes && (
+									<div className="p-4 bg-sky-50/50 border border-sky-100 rounded-xl flex flex-col gap-3">
+										<h3 className="text-xs font-bold text-sky-800 uppercase tracking-wider flex items-center gap-1.5">
+											<PiWarningCircle size={16} /> Pesan Admin
+										</h3>
+										<p className="text-xs text-sky-900 leading-relaxed bg-white/70 p-3 rounded-lg border border-sky-100">
+											"{activeApp.admin_notes}"
+										</p>
+										
+										{activeApp.student_reply ? (
+											<div className="mt-2 pl-3 border-l-2 border-emerald-300">
+												<p className="text-[10px] font-bold text-slate-500 mb-1">Balasan Anda:</p>
+												<p className="text-xs text-slate-700 italic">"{activeApp.student_reply}"</p>
+											</div>
+										) : (
+											<div className="mt-2 flex flex-col gap-2">
+												<textarea
+													id="studentReplyBox"
+													placeholder="Ketik balasan / lengkapi data tambahan di sini..."
+													className="w-full p-3 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-sky-500 outline-none"
+													rows={2}
+												/>
+												<button
+													onClick={() => {
+														const el = document.getElementById('studentReplyBox');
+														if(!el.value) return;
+														replyNotes({ id: activeApp.id, reply: el.value })
+															.then(() => toast.success('Balasan berhasil dikirim!'))
+															.catch(() => toast.error('Gagal mengirim balasan.'));
+													}}
+													disabled={isReplyingNotes}
+													className="self-end px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm"
+												>
+													{isReplyingNotes ? 'Mengirim...' : 'Kirim Balasan'}
+												</button>
+											</div>
+										)}
+									</div>
+								)}
+
 								{/* Bagian Aksi Tindakan */}
 								<div className="border-t border-gray-100 pt-5">
 									<h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
@@ -520,6 +563,46 @@ function Lamaran() {
 													</button>
 												)}
 											</form>
+										</div>
+									)}
+
+									
+									{/* Form Perbarui Status Mandiri */}
+									{["APPLIED", "SCREENING", "INTERVIEW"].includes(activeApp.status) && (
+										<div className="p-4 bg-sky-50/50 border border-sky-100 rounded-xl flex flex-col gap-3 mt-4">
+											<span className="text-xs font-bold text-sky-800">Perbarui Status (Self-Reported)</span>
+											<p className="text-[11px] text-sky-600/80 leading-normal mb-1">
+												Anda menerima pembaruan email dari perusahaan? Perbarui status Kanban Anda di sini.
+											</p>
+											<div className="flex flex-col sm:flex-row gap-2">
+												<select 
+													id="newStatus"
+													className="flex-1 px-3 py-2 bg-white border border-sky-200 rounded-lg text-xs focus:ring-1 focus:ring-sky-500 outline-none text-slate-700 font-medium"
+													defaultValue=""
+												>
+													<option value="" disabled>Pilih Status Baru...</option>
+													<option value="SCREENING">Lolos Seleksi Berkas (Screening)</option>
+													<option value="INTERVIEW">Panggilan Wawancara (Interview)</option>
+													<option value="OFFERED">Mendapat Tawaran (Offered)</option>
+													<option value="REJECTED">Ditolak Perusahaan (Rejected)</option>
+												</select>
+												<button
+													onClick={() => {
+														const el = document.getElementById('newStatus');
+														if(!el.value) return;
+														updateStatus({ id: activeApp.id, data: { status: el.value, reason: 'Diperbarui mandiri oleh mahasiswa.' }})
+															.then(() => {
+																toast.success('Status berhasil diperbarui!');
+																el.value = '';
+															})
+															.catch(err => toast.error('Gagal memperbarui status.'));
+													}}
+													disabled={isSubmittingAction}
+													className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm whitespace-nowrap"
+												>
+													Perbarui
+												</button>
+											</div>
 										</div>
 									)}
 

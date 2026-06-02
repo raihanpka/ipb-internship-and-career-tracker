@@ -35,11 +35,15 @@ def list_pending_verification_command_handler(
             joinedload(Applications.vacancy).joinedload(Vacancies.company),
             joinedload(Applications.application_logs),
         )
-        .filter(Applications.status == "ACCEPTED")
+        .filter(Applications.status.in_(["APPLIED", "ACCEPTED"]))
         .order_by(Applications.updated_at.asc())
         .all()
     )
 
-    applications_with_proof = [app for app in applications if any(log.proof_url for log in app.application_logs)]
+    # Tampilkan lamaran yang APPLIED (untuk didaftarkan oleh admin) ATAU ACCEPTED yang punya bukti LoA (untuk dibuat Placement)
+    applications_with_proof = [
+        app for app in applications 
+        if app.status == "APPLIED" or any(log.proof_url for log in app.application_logs)
+    ]
 
     return ListPendingVerificationResult(items=applications_with_proof)

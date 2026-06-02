@@ -112,6 +112,10 @@ export const adminService = {
     const response = await api.post(`/admin/applications/${applicationId}/reject-proof`, data);
     return response.data;
   },
+  addAdminNotes: async (applicationId, notes) => {
+    const response = await api.patch(`/admin/applications/${applicationId}/notes`, { admin_notes: notes });
+    return response.data;
+  },
   
   // Placement
   getPlacements: async () => {
