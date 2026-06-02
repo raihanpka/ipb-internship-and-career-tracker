@@ -43,10 +43,10 @@ class PlacementService:
             raise PermissionError("Bukan pemilik penempatan")
 
         if data.log_date > date.today():
-            raise ValueError("Tanggal log tidak boleh di masa depan")
+            raise ValueError(f"Tanggal log ({data.log_date}) tidak boleh di masa depan (Hari ini: {date.today()})")
 
         if data.log_date < placement.start_date or data.log_date > placement.end_date:
-            raise ValueError("log_date harus dalam rentang periode magang")
+            raise ValueError(f"Tanggal log ({data.log_date}) di luar rentang magang ({placement.start_date} s/d {placement.end_date})")
 
         query = select(ActivityLogs).where(
             ActivityLogs.placement_id == placement_id,

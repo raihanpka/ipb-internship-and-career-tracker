@@ -1,6 +1,4 @@
 import { useState, useMemo } from "react";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { PiWarning, PiClock, PiUpload, PiCheckCircleFill, PiSpinner, PiFilePdf, PiTrash, PiSparkle } from "react-icons/pi";
@@ -372,29 +370,41 @@ function Jurnal() {
 					</div>
 
 					{/* Kalender */}
-					<div className="bg-white text-black rounded-xl shadow-[0px_8px_24px_0px_rgba(0,41,87,0.06)] border border-slate-100 overflow-x-auto flex justify-center p-2">
-						<DayPicker
-							locale={id}
-							mode="single"
-							selected={selectedDate}
-							onSelect={(day) => day && setSelectedDate(day)}
-							disabled={[
-								{ dayOfWeek: [0] },
-								{ before: journalStartDate },
-								{ after: new Date() },
-							]}
-							modifiers={{
-								hasLog: logs.map(l => new Date(l.activity_date))
+					<div className="bg-white text-black p-5 rounded-xl shadow-[0px_8px_24px_0px_rgba(0,41,87,0.06)] border border-slate-100 flex flex-col gap-3">
+						<label className="text-sm font-bold text-slate-700">Pilih Tanggal Jurnal</label>
+						<input 
+							type="date"
+							value={format(selectedDate, "yyyy-MM-dd")}
+							min={format(journalStartDate, "yyyy-MM-dd")}
+							max={format(new Date(), "yyyy-MM-dd")}
+							onChange={(e) => {
+								if(e.target.value) {
+									setSelectedDate(new Date(e.target.value));
+								}
 							}}
-							modifiersClassNames={{
-								hasLog: "font-bold text-sky-600 border-b-2 border-sky-400"
-							}}
-							classNames={{
-								selected: "bg-sky-600 text-white hover:bg-sky-700 rounded-full outline-none border-none",
-								today: "text-sky-600 font-bold",
-								month: "p-2",
-							}}
+							className="w-full py-2.5 px-4 text-slate-700 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-sky-500 outline-none transition-all"
 						/>
+					</div>
+
+					{/* Log Terakhir */}
+					<div className="bg-white text-black p-5 rounded-xl shadow-[0px_8px_24px_0px_rgba(0,41,87,0.06)] border border-slate-100 flex flex-col gap-3">
+						<label className="text-sm font-bold text-slate-700">Riwayat Jurnal</label>
+						<div className="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-1">
+							{logs.length > 0 ? logs.map(l => (
+								<div 
+									key={l.id} 
+									onClick={() => setSelectedDate(new Date(l.activity_date))}
+									className={`p-3 rounded-lg cursor-pointer border text-xs font-bold transition-all ${format(selectedDate, "yyyy-MM-dd") === l.activity_date ? "bg-sky-50 border-sky-200 text-sky-800" : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100 hover:border-slate-300"}`}
+								>
+									<div className="flex justify-between items-center">
+										<span>{format(new Date(l.activity_date), "dd MMM yyyy", { locale: id })}</span>
+										<span className="bg-white px-2 py-0.5 rounded text-[10px] border shadow-sm">{l.duration_hours} Jam</span>
+									</div>
+								</div>
+							)) : (
+								<div className="text-xs text-slate-400 italic text-center py-4">Belum ada jurnal yang terisi</div>
+							)}
+						</div>
 					</div>
 				</div>
 

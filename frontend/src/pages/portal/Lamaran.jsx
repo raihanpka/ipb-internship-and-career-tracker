@@ -20,6 +20,7 @@ import {
   PiWarningCircle
 } from "react-icons/pi";
 import { useApplications, useApplicationHistory } from "../../hooks/useApplications";
+import { usePlacements } from "../../hooks/usePlacements";
 import { resolveBackendAssetUrl } from "../../utils/assetUrl";
 
 // Utilitas pembantu untuk format tanggal secara rapi
@@ -58,7 +59,7 @@ const statusMap = {
 		badge: "bg-purple-100 text-purple-800"
 	},
 	ACCEPTED: {
-		label: "Accepted (Pending)",
+		label: "Diterima",
 		color: "bg-emerald-50 text-emerald-700 border-emerald-200",
 		badge: "bg-emerald-100 text-emerald-800"
 	},
@@ -118,6 +119,7 @@ function Lamaran() {
 		isReplyingNotes,
 		refetch
 	} = useApplications();
+	const { data: placements = [] } = usePlacements();
 	
 	// State laci geser detail lamaran
 	const [selectedApp, setSelectedApp] = useState(null);
@@ -285,6 +287,11 @@ function Lamaran() {
 									{colApps.map((app) => {
 										const matchedStatus = statusMap[app.status];
 										const vac = app.vacancy || {};
+										let label = matchedStatus.label;
+										if (app.status === "ACCEPTED") {
+											const isVerified = placements.some(p => p.application_id === app.id);
+											if (!isVerified) label = "Pending Accepted";
+										}
 
 										return (
 											<motion.div
@@ -296,7 +303,7 @@ function Lamaran() {
 											>
 												<div className="flex justify-between items-start gap-2">
 													<span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${matchedStatus.badge}`}>
-														{matchedStatus.label}
+														{label}
 													</span>
 													{app.match_percentage && (
 														<span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5">
@@ -362,9 +369,18 @@ function Lamaran() {
 							<div className="p-5 sm:p-6 bg-sky-950 text-white flex justify-between items-start relative overflow-hidden">
 								<div className="absolute top-0 right-0 w-32 h-32 bg-sky-900 rounded-full translate-x-16 -translate-y-16 blur-2xl"></div>
 								<div className="flex flex-col gap-1 relative z-10">
-									<span className={`self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-white/20 text-white border border-white/10 mb-2`}>
-										{statusMap[activeApp.status]?.label}
-									</span>
+									{(() => {
+										let label = statusMap[activeApp.status]?.label;
+										if (activeApp.status === "ACCEPTED") {
+											const isVerified = placements.some(p => p.application_id === activeApp.id);
+											if (!isVerified) label = "Pending Accepted";
+										}
+										return (
+											<span className={`self-start px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-white/20 text-white border border-white/10 mb-2`}>
+												{label}
+											</span>
+										);
+									})()}
 									<h2 className="text-xl font-bold leading-tight">{activeApp.vacancy?.title}</h2>
 									<p className="text-sm text-sky-200 font-medium flex items-center gap-1.5">
 										<PiBuilding /> {activeApp.vacancy?.company_name}

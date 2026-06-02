@@ -42,11 +42,11 @@ def create_activity_log_command_handler(
 
     # Validasi log_date tidak boleh di masa depan
     if command.log_date > datetime.date.today():
-        return CreateActivityLogResult(error_message="log_date tidak boleh di masa depan")
+        return CreateActivityLogResult(error_message=f"Tanggal log ({command.log_date}) tidak boleh di masa depan (Hari ini: {datetime.date.today()})")
 
     # Validasi log_date harus dalam rentang placement.start_date dan placement.end_date
     if not (placement.start_date <= command.log_date <= placement.end_date):
-        return CreateActivityLogResult(error_message="log_date harus dalam rentang periode magang")
+        return CreateActivityLogResult(error_message=f"Tanggal log ({command.log_date}) di luar rentang magang ({placement.start_date} s/d {placement.end_date})")
 
     # Validasi duplikasi (hanya 1 log per tanggal per placement)
     existing_log = session.query(ActivityLogs).filter_by(placement_id=placement.id, activity_date=command.log_date).first()

@@ -17,7 +17,7 @@ const statusMap = {
 	SCREENING: { label: "Screening", badge: "bg-indigo-100 text-indigo-800 border-indigo-200" },
 	INTERVIEW: { label: "Interviewing", badge: "bg-amber-100 text-amber-800 border-amber-200" },
 	OFFERED: { label: "Offer Received", badge: "bg-purple-100 text-purple-800 border-purple-200" },
-	ACCEPTED: { label: "Accepted (Pending)", badge: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+	ACCEPTED: { label: "Diterima", badge: "bg-emerald-100 text-emerald-800 border-emerald-200" },
 	REJECTED: { label: "Rejected", badge: "bg-rose-100 text-rose-800 border-rose-200" },
 	WITHDRAWN: { label: "Withdrawn", badge: "bg-zinc-100 text-zinc-600 border-zinc-200" }
 };
@@ -211,17 +211,24 @@ function Dashboard() {
 								<span className="text-xs text-zinc-400">Memuat data lamaran...</span>
 							</div>
 						) : sortedApplications.length > 0 ? (
-							sortedApplications.map((app) => (
+							sortedApplications.map((app) => {
+								let label = statusMap[app.status]?.label || app.status;
+								if (app.status === "ACCEPTED") {
+									const isVerified = placements?.some(p => p.application_id === app.id);
+									if (!isVerified) label = "Pending Accepted";
+								}
+								return (
 								<div key={app.id} className="flex justify-between items-start gap-3 border-b border-slate-50 last:border-0 pb-4 last:pb-0">
 									<div className="text-sm">
 										<h5 className="font-bold text-slate-800 line-clamp-1">{app.vacancy?.title || app.vacancy_title}</h5>
 										<p className="text-zinc-500 text-xs mt-0.5 line-clamp-1">{app.vacancy?.company?.name || app.company_name}</p>
 									</div>
 									<div className={`px-2.5 py-1 text-center rounded-full text-[10px] font-bold border shrink-0 ${statusMap[app.status]?.badge || "bg-zinc-100 text-zinc-700 border-zinc-200"}`}>
-										{statusMap[app.status]?.label || app.status}
+										{label}
 									</div>
 								</div>
-							))
+								);
+							})
 						) : (
 							<div className="flex-1 flex flex-col justify-center items-center text-center p-6 gap-2">
 								<p className="text-xs text-zinc-400">Belum ada riwayat lamaran.</p>
