@@ -71,7 +71,6 @@ class PlacementService:
                 activity_date=data.log_date,
                 duration_hours=duration,
                 description_raw=data.description_raw,
-                updated_at=datetime.now(timezone.utc),
             )
             self.activity_log_repo.create(log)
             self.activity_log_repo.save_changes()
