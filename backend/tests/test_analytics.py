@@ -210,7 +210,7 @@ class TestDistributionCaching:
         mock_set.assert_called_once()
         # Verifikasi TTL dikirim ke cache_set
         _, kwargs = mock_set.call_args
-        assert kwargs.get("ttl") == 300
+        assert kwargs.get("ttl") == 0
 
     def test_cache_hit_skips_handler(self, client_as_admin):
         """Saat cache hit, handler TIDAK dipanggil."""

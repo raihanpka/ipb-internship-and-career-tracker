@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { PiWarning, PiClock, PiUpload, PiCheckCircleFill, PiSpinner, PiFilePdf, PiTrash, PiSparkle } from "react-icons/pi";

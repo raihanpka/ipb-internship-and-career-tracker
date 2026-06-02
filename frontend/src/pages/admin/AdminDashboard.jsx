@@ -146,6 +146,29 @@ function AdminDashboard() {
                             <span className="font-bold text-slate-900">Validasi</span>
                         </Link>
                     </div>
+
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div className="p-6 border-b border-slate-50">
+                            <h2 className="font-bold text-slate-900 text-lg">Distribusi per Departemen</h2>
+                        </div>
+                        <div className="p-6 space-y-4 max-h-[300px] overflow-y-auto">
+                            {(distribution?.department_breakdown || []).length > 0 ? (
+                                distribution.department_breakdown.slice(0, 5).map((dept, idx) => (
+                                    <div key={idx} className="flex items-center justify-between gap-4 border-b border-slate-50 last:border-0 pb-3 last:pb-0">
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-800">{dept.department_name}</p>
+                                            <p className="text-xs text-slate-400">{dept.company_name || "-"}</p>
+                                        </div>
+                                        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold whitespace-nowrap">
+                                            {dept.total_students} mhs
+                                        </span>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-8 text-center text-slate-400 text-sm">Belum ada sebaran departemen.</div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -34,7 +34,7 @@ def test_health(client_no_auth):
     assert resp.json() == {"status": "healthy"}
 
 
-#  Register Student
+import uuid
 
 STUDENT_PAYLOAD = {
     "email": "mahasiswa@ipb.ac.id",
@@ -42,6 +42,7 @@ STUDENT_PAYLOAD = {
     "nim": "G1234567890",
     "full_name": "Windah Basudara",
     "semester": 5,
+    "department_id": str(uuid.uuid4()),
 }
 
 
